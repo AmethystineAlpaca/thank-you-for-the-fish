@@ -49,7 +49,7 @@ app.whenReady().then(async () => {
     await widget.webContents.executeJavaScript('Art.ready');
     await widget.webContents.executeJavaScript('desktop.scale(1.5)');
     // A neutral matte makes the otherwise transparent desktop window GIF-friendly.
-    widget.setBackgroundColor('#eef7f3');
+    widget.setBackgroundColor('#f7f4ee');
     await sleep(250);
     await record('desktop-fishing', widget, 5, 540, async i => {
       if (i === 12) widget.webContents.send('caught', catches[1]);

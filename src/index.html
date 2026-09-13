@@ -1,1 +1,170 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Thank You for the Fish</title><link rel="stylesheet" href="style.css"></head><body class="collection"><div class="titlebar">THANK YOU FOR THE FISH <span>一方小海，一点闲暇</span></div><aside><div class="brand"><span class="brand-icon">≈</span><h2>小憩海湾<small>THANK YOU FOR THE FISH</small></h2></div><nav><button class="active" data-page="basket">▧ <span>我的鱼篓</span><b id="total-nav">0</b></button><button data-page="atlas">◈ <span>海洋图鉴</span><b>100</b></button><button data-page="settings">☷ <span>垂钓设置</span></button></nav><div class="sidebar-bottom"><span class="live-dot"></span> <span id="fishing-status">小船正在垂钓</span><p>你忙你的，大海有它的节奏。</p><button id="quit-app" class="quit-app">⏻ 退出 Thank You for the Fish</button></div></aside><main><header><div><div class="eyebrow">YOUR LITTLE ESCAPE</div><h1 id="page-title">今天，也有新的收获。</h1><p id="subtitle">把忙碌留在岸上，收好每一份来自大海的礼物。</p></div><button class="quiet" id="demo">✧ 试钓一下</button></header><section class="hero"><div><span class="tag">THE SEA IS TAKING ITS TIME</span><h2>发一会儿呆，<br>等一条鱼来。</h2><p>不必赶路，也会有所收获。</p><div class="hero-status"><span class="live-dot"></span><span id="interval">每 5–20 分钟 · 随机咬钩</span></div></div><canvas id="hero-scene" width="320" height="186"></canvas><span class="coordinates">01 / 宁静海湾<br>潮汐平缓 · 宜摸鱼</span></section><div class="stats"><div><span>累计收获</span><strong id="total">0 <small>条</small></strong></div><div><span>发现物种</span><strong id="species">0 <small>/ 100</small></strong></div><div><span>特别的相遇</span><strong id="special">0 <small>条</small></strong></div><div><span>收藏总价值</span><strong id="value">0 <small>贝壳</small></strong></div></div><section id="inventory"><div class="section-heading"><h2 id="grid-title">我的鱼篓 <span>COLLECTION</span></h2><select id="sort" aria-label="排序"><option value="new">最近钓获</option><option value="value">价值从高到低</option><option value="size">克重从大到小</option></select></div><div class="filters"><button class="active" data-filter="all">全部</button><button data-filter="normal">普通</button><button data-filter="alternate">异色</button><button data-filter="glow">荧光</button><button data-filter="prism">炫彩</button><input id="search" placeholder="搜索鱼的名字…" aria-label="搜索鱼的名字"></div><div id="grid"></div></section><section id="settings-panel" hidden><h2>让小船跟上你的节奏</h2><p>每次收竿后，在这个范围内随机安排下一次咬钩。</p><form id="settings-form"><label>最短间隔（分钟）<input id="min" type="number" min="1" max="120" required></label><label>最长间隔（分钟）<input id="max" type="number" min="1" max="120" required></label><label class="check"><input id="top" type="checkbox"> 小船始终显示在其他窗口上方</label><label class="check"><input id="paused" type="checkbox"> 暂停垂钓</label><button class="primary">保存设置</button><span id="saved" role="status"></span></form><div class="widget-size-setting"><h3>小船大小</h3><p>拖动桌面小船右下角的 ◢ 即可缩放。双击手柄恢复默认大小。</p><button type="button" id="reset-size" class="quiet">恢复默认大小</button></div><div class="format-setting"><h3>格式化存档</h3><p>永久清空全部鱼获、图鉴进度和收藏统计，保留垂钓设置与小船布局。需连续确认三次，任一步都可取消。</p><button type="button" id="format-save" class="danger">一键格式化</button></div><p class="note">收藏自动保存在这台 Mac。退出后不累计离线鱼获；重新打开开始新一轮等待。电脑休眠期间最多补收一条鱼。贝壳目前仅用于展示收藏价值。</p></section><footer class="page-footer">慢慢来，好鱼值得等。<span>THANK YOU FOR THE FISH / VOL. 01</span></footer></main><dialog id="detail"><button class="close" aria-label="关闭详情">×</button><div class="detail-art"><canvas width="400" height="240"></canvas></div><div class="detail-body"><span id="detail-tag" class="eyebrow"></span><h2 id="detail-name"></h2><p id="description"></p><div id="detail-stats"></div><p id="caught-time" class="note"></p></div></dialog><div id="notice" hidden role="status"></div><script src="fish-designs.js"></script><script src="catalog.js"></script><script src="art.js"></script><script src="motion.js"></script><script src="soft-art.js"></script><script src="collection.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thank You for the Fish</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="collection">
+    <div class="titlebar">
+      THANK YOU FOR THE FISH <span>一方小海，一点闲暇</span>
+    </div>
+    <aside>
+      <div class="brand">
+        <span class="brand-icon">≈</span>
+        <h2>小憩海湾<small>THANK YOU FOR THE FISH</small></h2>
+      </div>
+      <nav>
+        <button class="active" data-page="basket">
+          ▧ <span>我的鱼篓</span><b id="total-nav">0</b></button
+        ><button data-page="atlas">◈ <span>海洋图鉴</span><b>100</b></button
+        ><button data-page="settings">☷ <span>垂钓设置</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="live-dot"></span>
+        <span id="fishing-status">小船正在垂钓</span>
+        <p>你忙你的，大海有它的节奏。</p>
+        <button id="quit-app" class="quit-app">
+          ⏻ 退出 Thank You for the Fish
+        </button>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <div class="eyebrow">YOUR LITTLE ESCAPE</div>
+          <h1 id="page-title">今天，也有新的收获。</h1>
+          <p id="subtitle">把忙碌留在岸上，收好每一份来自大海的礼物。</p>
+        </div>
+        <button class="quiet" id="demo">✧ 试钓一下</button>
+      </header>
+      <section class="hero">
+        <div>
+          <span class="tag">THE SEA IS TAKING ITS TIME</span>
+          <h2>发一会儿呆，<br />等一条鱼来。</h2>
+          <p>不必赶路，也会有所收获。</p>
+          <div class="hero-status">
+            <span class="live-dot"></span
+            ><span id="interval">每 5–20 分钟 · 随机咬钩</span>
+          </div>
+        </div>
+        <canvas id="hero-scene" width="320" height="186"></canvas
+        ><span class="coordinates">01 / 宁静海湾<br />潮汐平缓 · 宜摸鱼</span>
+      </section>
+      <div class="stats">
+        <div>
+          <span>累计收获</span><strong id="total">0 <small>条</small></strong>
+        </div>
+        <div>
+          <span>发现物种</span
+          ><strong id="species">0 <small>/ 100</small></strong>
+        </div>
+        <div>
+          <span>特别的相遇</span
+          ><strong id="special">0 <small>条</small></strong>
+        </div>
+        <div>
+          <span>收藏总价值</span
+          ><strong id="value">0 <small>贝壳</small></strong>
+        </div>
+      </div>
+      <section id="inventory">
+        <div class="section-heading">
+          <h2 id="grid-title">我的鱼篓 <span>COLLECTION</span></h2>
+          <select id="sort" aria-label="排序">
+            <option value="new">最近钓获</option>
+            <option value="name">鱼种名称</option>
+            <option value="value">价值从高到低</option>
+            <option value="size">克重从大到小</option>
+          </select>
+        </div>
+        <div class="filters">
+          <button class="active" data-filter="all">全部</button
+          ><button data-filter="normal">普通</button
+          ><button data-filter="alternate">异色</button
+          ><button data-filter="glow">荧光</button
+          ><button data-filter="prism">炫彩</button
+          ><input
+            id="search"
+            placeholder="搜索鱼的名字…"
+            aria-label="搜索鱼的名字"
+          />
+        </div>
+        <div id="grid"></div>
+      </section>
+      <section id="settings-panel" hidden>
+        <h2>让小船跟上你的节奏</h2>
+        <p>每次收竿后，在这个范围内随机安排下一次咬钩。</p>
+        <form id="settings-form">
+          <label
+            >最短间隔（分钟）<input
+              id="min"
+              type="number"
+              min="1"
+              max="120"
+              required /></label
+          ><label
+            >最长间隔（分钟）<input
+              id="max"
+              type="number"
+              min="1"
+              max="120"
+              required /></label
+          ><label class="check"
+            ><input id="top" type="checkbox" />
+            小船始终显示在其他窗口上方</label
+          ><label class="check"
+            ><input id="paused" type="checkbox" /> 暂停垂钓</label
+          ><button class="primary">保存设置</button
+          ><span id="saved" role="status"></span>
+        </form>
+        <div class="widget-size-setting">
+          <h3>小船大小</h3>
+          <p>拖动桌面小船右下角的 ◢ 即可缩放。双击手柄恢复默认大小。</p>
+          <button type="button" id="reset-size" class="quiet">
+            恢复默认大小
+          </button>
+        </div>
+        <div class="format-setting">
+          <h3>格式化存档</h3>
+          <p>
+            永久清空全部鱼获、图鉴进度和收藏统计，保留垂钓设置与小船布局。需连续确认三次，任一步都可取消。
+          </p>
+          <button type="button" id="format-save" class="danger">
+            一键格式化
+          </button>
+        </div>
+        <p class="note">
+          收藏自动保存在这台
+          Mac。退出后不累计离线鱼获；重新打开开始新一轮等待。电脑休眠期间最多补收一条鱼。贝壳目前仅用于展示收藏价值。
+        </p>
+      </section>
+      <footer class="page-footer">
+        慢慢来，好鱼值得等。<span>THANK YOU FOR THE FISH / VOL. 01</span>
+      </footer>
+    </main>
+    <dialog id="detail">
+      <button class="close" aria-label="关闭详情">×</button>
+      <div class="detail-art"><canvas width="400" height="240"></canvas></div>
+      <div class="detail-body">
+        <span id="detail-tag" class="eyebrow"></span>
+        <h2 id="detail-name"></h2>
+        <p id="description"></p>
+        <div id="detail-stats"></div>
+        <p id="caught-time" class="note"></p>
+      </div>
+    </dialog>
+    <div id="notice" hidden role="status"></div>
+    <script src="fish-designs.js"></script>
+    <script src="catalog.js"></script>
+    <script src="art.js"></script>
+    <script src="motion.js"></script>
+    <script src="soft-art.js"></script>
+    <script src="collection.js"></script>
+  </body>
+</html>

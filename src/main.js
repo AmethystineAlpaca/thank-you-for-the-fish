@@ -18,7 +18,7 @@ function showCollection(page='basket'){
     else collection.webContents.send('navigate',page);
     return;
   }
-  collection=new BrowserWindow({width:1080,height:760,minWidth:850,minHeight:640,title:'Thank You for the Fish · 鱼篓',backgroundColor:'#f0f8f6',titleBarStyle:'hiddenInset',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}});
+  collection=new BrowserWindow({width:1080,height:760,minWidth:850,minHeight:640,title:'Thank You for the Fish · 鱼篓',backgroundColor:'#f7f4ee',titleBarStyle:'hiddenInset',webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false}});
   collection.loadFile(path.join(__dirname,'index.html'),{query:{page}});
   collection.on('closed',()=>collection=null);
 }
@@ -50,7 +50,8 @@ if(!app.requestSingleInstanceLock())app.quit();else{
     const legacyFile=path.join(path.dirname(app.getPath('userData')),'little-tide','collection.json');
     if(!fs.existsSync(file)&&fs.existsSync(legacyFile)){fs.mkdirSync(path.dirname(file),{recursive:true});fs.copyFileSync(legacyFile,file)}
     try{state=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(state.catches)||!state.settings)throw Error('Invalid save')}
-    catch(e){if(fs.existsSync(file))fs.copyFileSync(file,file+'.backup-'+Date.now());state={catches:[],unread:0,settings:{min:5,max:20,top:true,paused:false},next:0}}
+    catch(e){if(fs.existsSync(file))fs.copyFileSync(file,file+'.backup-'+Date.now());state={catches:[],unread:0,language:'zh-CN',settings:{min:5,max:20,top:true,paused:false},next:0}}
+    if(!state.language)state.language='zh-CN';
     schedule();
     const size=sizeForScale(state.widgetScale||1);state.widgetScale=size.scale;save();
     const area=screen.getPrimaryDisplay().workArea;const pos=state.position;
@@ -72,7 +73,7 @@ ipcMain.handle('read',()=>{state.unread=0;save();broadcast()});
 ipcMain.handle('settings',(_,s)=>{
   if(!s||!Number.isFinite(s.min)||!Number.isFinite(s.max)||s.min<1||s.max>120||s.max<s.min)throw Error('时间范围须为 1–120 分钟，最大值不能小于最小值');
   const changed=s.min!==state.settings.min||s.max!==state.settings.max||state.settings.paused&&!s.paused;
-  state.settings={min:s.min,max:s.max,paused:!!s.paused,top:!!s.top};
+  state.settings={min:s.min,max:s.max,paused:!!s.paused,top:!!s.top};if(s.language==='en'||s.language==='zh-CN')state.language=s.language;
   if(changed)schedule();widget.setAlwaysOnTop(state.settings.top);save();broadcast();return state;
 });
 ipcMain.handle('format',async(event)=>{

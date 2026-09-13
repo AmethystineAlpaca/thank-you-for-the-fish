@@ -16,15 +16,31 @@ const ready=Promise.all([load(boat,'boat.png'),...atlases.map(atlas=>load(atlas.
 const reefSlots=[0,2,3,4,5,6,7,8,9,10,1,11,12,13,14,15,16,17,18,19];
 const fishFrames=new Map(),sceneStates=new WeakMap();
 const appearances=new Map();
-// Pick a palette from the actual sprite, so the light follows its body and fins.
+// Alternate palettes follow the original sprite; fluorescence and silver foil are independent.
+const neonHues=[135,355,280,205,55];
+function glowIndex(f,record){
+ // The catch ID already contains randomness and survives reloads, including old saves.
+ const seed=String(record?.id??('species-'+f.id));
+ let hash=2166136261;
+ for(let i=0;i<seed.length;i++)hash=Math.imul(hash^seed.charCodeAt(i),16777619);
+ return (hash>>>0)%neonHues.length;
+}
+function glowAppearance(base,f,record){
+ const index=glowIndex(f,record);
+ if(!base.glows.has(index)){
+  const neon=rgb(neonHues[index],1,.57);
+  base.glows.set(index,{neon,neonColor:`rgb(${neon.join(',')})`,luminous:null,emission:null,rim:null,core:null});
+ }
+ return base.glows.get(index);
+}
 const palettes=[
- {hue:8,alternate:328,glow:'#ee9eac',pearl:['#f2b5c4','#ffe4c7','#c7bce8']},
- {hue:38,alternate:348,glow:'#e9ba79',pearl:['#f4c7a3','#f9e8ce','#dabce7']},
- {hue:85,alternate:192,glow:'#e2c78f',pearl:['#e9d9ae','#b8dbe9','#d6c4ed']},
- {hue:165,alternate:218,glow:'#91cce6',pearl:['#b9dfe8','#ccd0ef','#efd0de']},
- {hue:215,alternate:266,glow:'#91bbed',pearl:['#aed5ef','#cbbcec','#f1cbdc']},
- {hue:275,alternate:207,glow:'#beaaec',pearl:['#d6bcec','#efc9dc','#b9dceb']},
- {hue:330,alternate:28,glow:'#e9a9c6',pearl:['#edbed6','#e0c6ed','#f5dfc0']}
+ {hue:8,alternate:328,glow:'#ee9eac'},
+ {hue:38,alternate:348,glow:'#e9ba79'},
+ {hue:85,alternate:192,glow:'#e2c78f'},
+ {hue:165,alternate:218,glow:'#91cce6'},
+ {hue:215,alternate:266,glow:'#91bbed'},
+ {hue:275,alternate:207,glow:'#beaaec'},
+ {hue:330,alternate:28,glow:'#e9a9c6'}
 ];
 const hueDistance=(a,b)=>(a-b+540)%360-180;
 function hsl(r,g,b){
@@ -54,11 +70,8 @@ function appearance(source,f){
  }
  const dominant=bins.some(v=>v>0)?bins.indexOf(Math.max(...bins))*15:215;
  const palette=palettes.reduce((best,p)=>Math.abs(hueDistance(p.hue,dominant))<Math.abs(hueDistance(best.hue,dominant))?p:best);
- const prism=palette.pearl.map(color=>{
-  const [h]=hsl(...color.slice(1).match(/../g).map(v=>parseInt(v,16)));
-  return `hsl(${h} 72% 65%)`;
- });
- const result={palette,prism,bounds,alternate:null,emission:null};
+
+ const result={palette,bounds,alternate:null,glows:new Map()};
  appearances.set(f.id,result);return result;
 }
 function alternateSource(source,look){
@@ -76,43 +89,138 @@ function alternateSource(source,look){
  }
  ac.putImageData(pixels,0,0);look.alternate=alternate;return alternate;
 }
-function emissionSource(source,look){
- if(look.emission)return look.emission;
+function luminousSource(source,look){
+ if(look.luminous)return look.luminous;
+ const luminous=document.createElement('canvas');luminous.width=source.width;luminous.height=source.height;
  const emission=document.createElement('canvas');emission.width=source.width;emission.height=source.height;
  const pixels=source.getContext('2d').getImageData(0,0,source.width,source.height),data=pixels.data;
- const tint=look.palette.glow.slice(1).match(/../g).map(v=>parseInt(v,16));
- for(let i=0;i<data.length;i+=4){
-  // Bloom comes from illuminated scales and markings, leaving dark eyes and shadows intact.
-  const light=(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;
-  const strength=Math.max(0,Math.min(1,(light-.38)/.48));
-  data[i+3]*=strength*strength;
-  for(let j=0;j<3;j++)data[i+j]=tint[j]*.35+255*.65;
+ const lights=emission.getContext('2d').createImageData(source.width,source.height),lightData=lights.data;
+ // Remove the original pigments, retaining relief as a translucent dyed membrane.
+ const original=new Uint8ClampedArray(data);
+ const energy=i=>(original[i]+original[i+1]+original[i+2])/(3*255);
+ const w=source.width,h=source.height;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const i=(y*w+x)*4,alpha=original[i+3];if(!alpha)continue;
+  const light=energy(i);
+  let relief=0;
+  for(const [dx,dy] of [[-2,0],[2,0],[0,-2],[0,2]]){
+   const xx=x+dx,yy=y+dy;
+   if(xx<0||xx>=w||yy<0||yy>=h)continue;
+   const j=(yy*w+xx)*4;
+   if(original[j+3]>128)relief=Math.max(relief,Math.abs(light-energy(j)));
+  }
+  const detail=Math.min(1,relief*3.5);
+  const highlight=Math.pow(light,3);
+  // Fine original markings glow inside the body; the background remains visible.
+  data[i+3]=alpha*(.12+.20*light+.12*detail);
+  lightData[i+3]=alpha*(.035+.22*detail+.13*highlight);
+  for(let j=0;j<3;j++){
+   data[i+j]=look.neon[j]*(.48+.52*light);
+   const white=.08+.28*highlight+.16*detail;
+   lightData[i+j]=look.neon[j]*(1-white)+255*white;
+  }
  }
- emission.getContext('2d').putImageData(pixels,0,0);look.emission=emission;return emission;
+ luminous.getContext('2d').putImageData(pixels,0,0);
+ emission.getContext('2d').putImageData(lights,0,0);
+ look.luminous=luminous;look.emission=emission;return luminous;
 }
-function sparkles(c,look,source,x,y,dw,dh,t,id,prism){
+function neonContours(source,look){
+ if(look.rim)return;
+ const w=source.width,h=source.height,pixels=source.getContext('2d').getImageData(0,0,w,h).data;
+ const layers=[{key:'rim',radius:3,color:look.neon},{key:'core',radius:1,color:look.neon.map(v=>v*.45+255*.55)}];
+ for(const {key,radius,color} of layers){
+  const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+  const c=canvas.getContext('2d'),edge=c.createImageData(w,h);
+  const offsets=Array.from({length:16},(_,i)=>[Math.round(Math.cos(i*Math.PI/8)*radius),Math.round(Math.sin(i*Math.PI/8)*radius)]);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   const i=(y*w+x)*4,alpha=pixels[i+3];if(!alpha)continue;
+   let inside=alpha;
+   for(const [dx,dy] of offsets){
+    const xx=x+dx,yy=y+dy;
+    inside=Math.min(inside,xx<0||xx>=w||yy<0||yy>=h?0:pixels[(yy*w+xx)*4+3]);
+   }
+   // An inner contour follows fins, tails and tentacles without filling their gaps.
+   edge.data[i+3]=alpha-inside;
+   for(let j=0;j<3;j++)edge.data[i+j]=color[j];
+  }
+  c.putImageData(edge,0,0);look[key]=canvas;
+ }
+}
+// Silver substrate and reflectivity mask keep eyes, markings and sculpted shading.
+function foilSource(source,look){
+ if(look.silver)return look.silver;
+ const w=source.width,h=source.height;
+ const silver=document.createElement('canvas'),mask=document.createElement('canvas');
+ silver.width=mask.width=w;silver.height=mask.height=h;
+ const pixels=source.getContext('2d').getImageData(0,0,w,h),data=pixels.data;
+ const reflect=mask.getContext('2d').createImageData(w,h);
+ for(let i=0;i<data.length;i+=4){
+  const peak=Math.max(data[i],data[i+1],data[i+2])/255;
+  const light=(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;
+  const energy=light*.65+peak*.35;
+  const protection=Math.min(1,Math.max(0,(energy-.09)/.24));
+  const metal=Math.min(255,(energy*.86+.1)*255);
+  for(let j=0;j<3;j++){
+   data[i+j]+=(metal+[0,4,9][j]-data[i+j])*.86*protection;
+   reflect.data[i+j]=255;
+  }
+  reflect.data[i+3]=data[i+3]*protection;
+ }
+ silver.getContext('2d').putImageData(pixels,0,0);
+ mask.getContext('2d').putImageData(reflect,0,0);
+ // Fixed irregular facets: only the reflected light changes, never the pattern.
+ const points=[],facets=[];
+ const noise=n=>{const v=Math.sin(n*127.1+look.bounds.left*3.7)*43758.5453;return v-Math.floor(v)};
+ for(let row=0;row<=4;row++)for(let col=0;col<=7;col++){
+  points.push([(col+(col>0&&col<7?(noise(row*8+col)-.5)*.65:0))/7,
+   (row+(row>0&&row<4?(noise(row*8+col+91)-.5)*.65:0))/4]);
+ }
+ for(let row=0;row<4;row++)for(let col=0;col<7;col++){
+  const a=row*8+col,b=a+1,d=a+8,e=d+1;
+  for(const indices of (row+col)%2?[[a,b,d],[b,e,d]]:[[a,b,e],[a,e,d]]){
+   facets.push({vertices:indices.map(i=>points[i]),phase:noise(a+facets.length+21)*Math.PI*2});
+  }
+ }
+ look.silver=silver;look.foilMask=mask;look.facets=facets;return silver;
+}
+function foilReflection(canvas,c,source,look,x,y,dw,dh,t,kind,id){
+ let layers=canvas._fishFoil;
+ if(!layers){layers=canvas._fishFoil=Array.from({length:2},()=>document.createElement('canvas'))}
+ const [foil,mask]=layers,w=canvas.width,h=canvas.height;
+ for(const layer of layers)if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h}
+ const fc=foil.getContext('2d'),mc=mask.getContext('2d');
+ mc.clearRect(0,0,w,h);Motion.draw(mc,look.foilMask,x,y,dw,dh,t,kind);
+ fc.clearRect(0,0,w,h);
  const b=look.bounds,left=x+b.left/source.width*dw,top=y+b.top/source.height*dh;
  const width=(b.right-b.left)/source.width*dw,height=(b.bottom-b.top)/source.height*dh;
- const points=[[.18,.1],[.72,.06],[.93,.55],[.38,.72],[.07,.53],[.66,.9],[.5,.32]];
- c.save();
- points.forEach(([px,py],i)=>{
-  const phase=t*(prism?2.2:1.8)+i*2.4+id*.63;
-  const pulse=Math.pow((Math.sin(phase)+1)/2,3),alpha=.22+pulse*.78;
-  const radius=Math.max(1.7,dw*.022)*(i%3===0?1.25:.8)*(.65+pulse*.55);
-  const color=prism?look.prism[i%3]:look.palette.glow;
-  c.save();c.translate(left+width*px,top+height*py+Math.sin(phase*.6)*dh*.014);
-  c.globalAlpha=alpha;c.shadowColor=color;c.shadowBlur=radius*1.8;
-  c.fillStyle=color;c.beginPath();
-  for(let j=0;j<8;j++){
-   const angle=j*Math.PI/4,r=j%2?radius*.22:radius;
-   const xx=Math.cos(angle)*r,yy=Math.sin(angle)*r;
-   if(j)c.lineTo(xx,yy);else c.moveTo(xx,yy);
-  }
-  c.closePath();c.fill();c.shadowBlur=0;
-  c.fillStyle='#fffdf6';c.beginPath();c.arc(0,0,Math.max(.6,radius*.23),0,Math.PI*2);c.fill();
-  c.restore();
- });
- c.restore();
+ const angle=t*.72+id*.47;
+ // Curved diffraction pools reveal local color as the light rolls over the silver.
+ function pool(px,py,rx,ry,stops){
+  fc.save();fc.translate(left+px*width,top+py*height);fc.scale(rx*width,ry*height);
+  const g=fc.createRadialGradient(0,0,0,0,0,1);
+  stops.forEach(([at,color])=>g.addColorStop(at,color));
+  fc.fillStyle=g;fc.fillRect(-1,-1,2,2);fc.restore();
+ }
+ const px=.36+.26*Math.sin(angle),py=.42+.2*Math.cos(angle*.83);
+ pool(px,py,.52,.88,[[0,'#ffcf69ee'],[.17,'#b5ed9de0'],[.34,'#22e6d9f0'],[.55,'#388bf3df'],[.74,'#8665e4a0'],[1,'#8665e400']]);
+ pool(.74+.19*Math.cos(angle*.91),.6+.24*Math.sin(angle*.77),.37,.76,
+  [[0,'#9ff5f5e8'],[.29,'#50bdebe0'],[.56,'#8676eea0'],[.78,'#e8a6d850'],[1,'#e8a6d800']]);
+ fc.globalCompositeOperation='destination-in';fc.drawImage(mask,0,0);fc.globalCompositeOperation='source-over';
+ c.save();c.globalCompositeOperation='color';c.globalAlpha=.88;c.drawImage(foil,0,0);
+ c.globalCompositeOperation='soft-light';c.globalAlpha=.42;c.drawImage(foil,0,0);c.restore();
+ // Facets catch and release light independently, with a small pearly reflection.
+ fc.clearRect(0,0,w,h);
+ for(const {vertices,phase} of look.facets){
+  const response=Math.sin(angle+phase),flash=Math.pow(Math.max(0,response),10);
+  fc.fillStyle=response>0?`rgba(221,244,255,${.025+flash*.2})`:`rgba(42,53,88,${-response*.1})`;
+  fc.beginPath();vertices.forEach(([px,py],i)=>{
+   const xx=left+px*width,yy=top+py*height;
+   if(i)fc.lineTo(xx,yy);else fc.moveTo(xx,yy);
+  });fc.closePath();fc.fill();
+ }
+ pool(px-.1,py-.18,.2,.36,[[0,'#ffffffa8'],[.2,'#efffff68'],[1,'#efffff00']]);
+ fc.globalCompositeOperation='destination-in';fc.drawImage(mask,0,0);fc.globalCompositeOperation='source-over';
+ c.save();c.drawImage(foil,0,0);c.restore();
 }
 function fish(canvas,f,trait='normal',t=0,catchRecord=null){
  const c=canvas.getContext('2d'),atlas=atlases[Math.floor(f.id/20)],img=atlas?.image;
@@ -155,44 +263,25 @@ function fish(canvas,f,trait='normal',t=0,catchRecord=null){
   c.globalCompositeOperation='source-in';c.fillStyle='#263f43';c.fillRect(0,0,w,h);c.restore();return;
  }
  const kind=['octopus','squid','horse','leafy','dumbo','vampire','blanket','garden'].includes(f.shape)?2:['manta','ray','electric'].includes(f.shape)?3:1;
- const look=trait==='normal'?null:appearance(source,f);
- const body=trait==='alternate'?alternateSource(source,look):source;
+ const base=trait==='normal'?null:appearance(source,f);
+ const look=trait==='glow'?glowAppearance(base,f,catchRecord):base;
+ const body=trait==='alternate'?alternateSource(source,look):trait==='glow'?luminousSource(source,look):trait==='prism'?foilSource(source,look):source;
  c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
- if(trait==='glow'){
-  const radius=Math.max(1.5,dw*.028)*(1+Math.sin(t*1.5)*.12);
-  c.filter=`brightness(1.14) saturate(1.12) drop-shadow(0px 0px ${radius}px ${look.palette.glow}ee) drop-shadow(0px 0px ${radius*2.2}px ${look.palette.glow}a0)`;
- }
  Motion.draw(c,body,x,y,dw,dh,t,kind);c.restore();
  if(trait==='glow'){
-  const emission=emissionSource(source,look),pulse=.9+Math.sin(t*1.5)*.1;
-  c.save();c.globalCompositeOperation='screen';c.globalAlpha=.62*pulse;
-  c.filter=`blur(${Math.max(.8,dw*.014)}px)`;Motion.draw(c,emission,x,y,dw,dh,t,kind);
-  c.filter='none';c.globalAlpha=.42*pulse;Motion.draw(c,emission,x,y,dw,dh,t,kind);c.restore();
+  neonContours(source,look);
+  const pulse=.82+.18*(.5+.5*Math.sin(t*1.8+f.id*.63));
+  // Transparent dyed tissue, luminous texture and a gently breathing colored edge.
+  c.save();c.globalCompositeOperation='screen';c.globalAlpha=pulse;
+  Motion.draw(c,look.emission,x,y,dw,dh,t,kind);c.restore();
+  c.save();c.globalAlpha=pulse;
+  const radius=Math.max(.8,dw*.009);
+  c.filter=`drop-shadow(0px 0px ${radius}px ${look.neonColor}) drop-shadow(0px 0px ${radius*2}px ${look.neonColor})`;
+  Motion.draw(c,look.rim,x,y,dw,dh,t,kind);c.restore();
+  c.save();c.globalAlpha=.65*pulse;
+  Motion.draw(c,look.core,x,y,dw,dh,t,kind);c.restore();
  }
- if(trait==='prism'){
-  // A visible opalescent color wave, with the original scale shading underneath.
-  let foil=canvas._fishFoil;
-  if(!foil){foil=document.createElement('canvas');canvas._fishFoil=foil}
-  if(foil.width!==w||foil.height!==h){foil.width=w;foil.height=h}
-  const fc=foil.getContext('2d');fc.clearRect(0,0,w,h);
-  Motion.draw(fc,source,x,y,dw,dh,t,kind);
-  fc.globalCompositeOperation='source-in';
-  const shift=Math.sin(t*.85)*dw*.28;
-  const pearl=fc.createLinearGradient(x+shift,y,x+dw*.85+shift,y+dh*.35);
-  [0,1,2,0,1].forEach((index,i)=>pearl.addColorStop(i/4,look.prism[index]));
-  fc.fillStyle=pearl;fc.fillRect(0,0,w,h);fc.globalCompositeOperation='source-over';
-  c.save();c.globalCompositeOperation='color';c.globalAlpha=.7;c.drawImage(foil,0,0);
-  c.globalCompositeOperation='soft-light';c.globalAlpha=.3;c.drawImage(foil,0,0);c.restore();
-  // Mask the travelling reflection separately so it brightens the existing scales.
-  fc.clearRect(0,0,w,h);Motion.draw(fc,source,x,y,dw,dh,t,kind);
-  fc.globalCompositeOperation='source-in';
-  const sweep=x-dw*.5+(t%4.8)/4.8*dw*2;
-  const shine=fc.createLinearGradient(sweep,y,sweep+dw*.3,y+dh*.18);
-  shine.addColorStop(0,'#fff6ed00');shine.addColorStop(.42,'#e8dfff60');shine.addColorStop(.5,'#fffaf0dd');shine.addColorStop(.58,'#d9edff60');shine.addColorStop(1,'#fff6ed00');
-  fc.fillStyle=shine;fc.fillRect(0,0,w,h);fc.globalCompositeOperation='source-over';
-  c.save();c.globalCompositeOperation='screen';c.globalAlpha=.7;c.drawImage(foil,0,0);c.restore();
- }
- if(trait==='glow'||trait==='prism')sparkles(c,look,source,x,y,dw,dh,t,f.id,trait==='prism');
+ if(trait==='prism')foilReflection(canvas,c,source,look,x,y,dw,dh,t,kind,f.id);
 }
 function scene(canvas,t,catching=false,record=null,elapsed=null){
  const w=640,h=372;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}

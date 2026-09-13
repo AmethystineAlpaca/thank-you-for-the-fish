@@ -66,14 +66,18 @@ Each species can appear in **four traits: 400 species-and-trait combinations**, 
 | --- | --- |
 | **Normal** | Natural colors. Quietly charming. You were attached from the first catch. |
 | **Alternate** | A familiar fish in an unexpected palette. Hang on—this one's different. |
-| **Glow** | A soft luminous halo. You seem to have caught a tiny underwater night-light. |
-| **Prismatic** | Shifting rainbow color and a moving sheen. This one gets the big preview. |
+| **Glow** | A bright neon outline follows the fins and tail, breathing gently with the luminous body. Eyes and markings stay clear. |
+| **Prismatic** | Flowing bands of color, a sweeping pearly sheen, and colorful sparkles. This one gets the big preview. |
 
-![The same clownfish in normal, alternate, glowing, and prismatic appearances](docs/images/fish-variants.gif)
+Special palettes follow each creature's natural body colors: icy blue, lilac, and rose for cool tones; apricot gold, coral pink, and lavender for warm tones.
+
+![Animated comparison of a blue tang and a dumbo octopus: normal on the left, glow in the middle, and prismatic on the right](docs/images/appearance-motion.gif)
+
+*Left to right: Normal · Glow · Prismatic. This comparison uses the game's renderer with matching body sizes. Special effects also animate on visible cards in your basket.*
 
 Open a catch's detail view to watch tails wag, tentacles sway, and fins gently ripple. You may forget you only came here to check its shell value.
 
-*GIFs show the real app with isolated sample collections. The desktop catch is triggered for the demonstration; normal fishing uses a random 5–20 minute interval. The four trait previews use the same body size.*
+*App demos use isolated sample collections. The desktop catch is triggered for the demonstration; normal fishing uses a random 5–20 minute interval.*
 
 ## Keep the fish. Collect the little wins.
 
