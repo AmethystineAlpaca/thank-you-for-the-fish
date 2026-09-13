@@ -24,12 +24,13 @@
   },
   "keywords": [
     "macos",
+    "macos-app",
+    "desktop-game",
     "idle-game",
-    "fishing",
-    "desktop-pet",
+    "fishing-game",
     "cozy-game",
-    "electron",
-    "aquarium"
+    "indie-game",
+    "singleplayer"
   ],
   "engines": {
     "node": ">=22.12.0"

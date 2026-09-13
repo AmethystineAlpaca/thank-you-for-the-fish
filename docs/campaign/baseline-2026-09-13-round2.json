@@ -1,0 +1,29 @@
+{
+  "sampled_at_utc": "2026-09-13T12:51:07.484523+00:00",
+  "repository": "https://github.com/AmethystineAlpaca/thank-you-for-the-fish",
+  "description": "🐟 A free, open-source idle fishing game for your Mac desktop. A tiny boat, automatic catches, 100 sea creatures and four traits. 小憩海湾：Mac 桌面放置钓鱼小游戏，上班摸鱼，真的有鱼。",
+  "topics": [
+    "cozy-game",
+    "desktop-game",
+    "fishing-game",
+    "idle-game",
+    "indie-game",
+    "macos",
+    "macos-app",
+    "singleplayer"
+  ],
+  "stars": 0,
+  "forks": 0,
+  "release": "v0.4.3",
+  "assets": [
+    {
+      "name": "SHA256SUMS.txt",
+      "download_count": 1
+    },
+    {
+      "name": "thank-you-for-the-fish-macos-arm64.zip",
+      "download_count": 1
+    }
+  ],
+  "note": "Downloads are not unique users. Posting attempts are not counted as exposure. Reddit automatic author upvote is not organic engagement."
+}
