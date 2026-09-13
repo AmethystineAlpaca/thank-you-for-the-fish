@@ -1,0 +1,3 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const {sizeForScale,scaleForDrag}=require('../src/window-size');
+test('size limits keep the boat usable and preserve its aspect ratio',()=>{assert.deepEqual(sizeForScale(.1),{scale:.6,width:216,height:162});assert.deepEqual(sizeForScale(4),{scale:1.5,width:540,height:405});assert.deepEqual(sizeForScale(NaN),{scale:1,width:360,height:270})});
+test('diagonal pointer movement scales the whole boat in both directions',()=>{assert.equal(scaleForDrag(1,-144,-108),.6);assert.equal(scaleForDrag(.6,144,108),1);assert.ok(scaleForDrag(1,-72,0)<1);assert.ok(scaleForDrag(1,0,60)>1)});

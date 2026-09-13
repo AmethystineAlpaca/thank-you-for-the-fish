@@ -1,0 +1,18 @@
+{
+  "mode": "Built-in image_gen",
+  "prompt": "Use case: precise-object-edit. Edit target: existing 4 column by 5 row marine animal game sprite atlas. Replace the gray checkerboard backdrop with perfectly SOLID PURE WHITE (#FFFFFF) everywhere outside the animals, including gaps between fins and tentacles. Keep all twenty original animals, their exact design, color, toy 3D material, pose and reading order. Clean smooth edges, NO colored fringe, NO speckles, NO shadow on white backdrop. Square canvas. Place each whole animal strictly within its own equal 4x5 grid cell, with at least 8% white margin on ALL four sides; slightly scale down oversized animals if necessary to fit. Especially preserve full tails, sword bills, antennae, fins, tentacles. No captions/grid lines. Produce clean production artwork on white, not transparent.",
+  "assets": [
+    {
+      "source": "fish-2.png",
+      "output": "fish-2-white.png"
+    },
+    {
+      "source": "fish-3.png",
+      "output": "fish-3-white.png"
+    },
+    {
+      "source": "fish-4.png",
+      "output": "fish-4-white.png"
+    }
+  ]
+}

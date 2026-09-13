@@ -1,0 +1,35 @@
+小憩海湾 · 启动说明
+
+【平时怎么打开】
+1. 在 Finder 中打开 thank_you_for_the_fish 文件夹。
+2. 双击「双击启动小憩海湾.command」。
+3. 桌面会出现小船，屏幕顶部菜单栏会出现「Thank You for the Fish」。
+   启动时弹出的终端窗口可以关闭，不影响小船运行。
+
+不需要输入命令，也不需要每次安装依赖。
+
+【也可以直接双击应用】
+依次打开 dist → Thank You for the Fish-darwin-arm64 → Thank You for the Fish.app。
+双击这个应用即可启动，不会弹出终端窗口。
+可以把这个应用拖到 Dock，之后点击 Dock 图标就能打开。
+
+【没看到小船怎么办】
+点击屏幕顶部菜单栏的「Thank You for the Fish」，选择「显示小船」。
+
+【查看收藏、设置和退出】
+点击顶部菜单栏「Thank You for the Fish」，选择「打开鱼篓」「打开设置…」或
+「退出 Thank You for the Fish」。鱼篓左下角也有退出按钮。
+收藏会自动保存；退出程序不会清空收藏。
+
+【文件放在哪里】
+请把启动入口和 dist 文件夹保留在这个项目文件夹里。
+可以整体移动项目文件夹，不要单独移动启动入口或删除 dist。
+当前打包的应用适用于 Apple Silicon（M 系列芯片）Mac。
+
+【如果打不开】
+先尝试上面的方法，直接双击 dist 里面的「Thank You for the Fish.app」。
+如果 macOS 显示阻止打开的提示，请把提示内容告诉我，以便处理。
+
+【修改程序之后】
+这个入口打开的是打包版本。修改代码后，需要重新打包才会生效。
+开发和打包命令见 README.md；日常使用无需操作这些命令。

@@ -1,0 +1,37 @@
+{
+  "name": "thank-you-for-the-fish",
+  "version": "0.4.3",
+  "description": "Thank You for the Fish · A cozy idle fishing companion for your Mac desktop. 100 sea creatures, 400 collectible appearances.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.js",
+    "package": "electron-packager . 'Thank You for the Fish' --platform=darwin --arch=arm64 --out=dist --overwrite --ignore='^/(dist|tests|scripts|artifacts|docs|\\.git|\\.github)' --ignore='^/src/assets/soft-sea/fish-[0-4]\\.png$'"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "44.3.0"
+  },
+  "license": "MIT",
+  "author": "AmethystineAlpaca",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AmethystineAlpaca/thank-you-for-the-fish.git"
+  },
+  "homepage": "https://github.com/AmethystineAlpaca/thank-you-for-the-fish#readme",
+  "bugs": {
+    "url": "https://github.com/AmethystineAlpaca/thank-you-for-the-fish/issues"
+  },
+  "keywords": [
+    "macos",
+    "idle-game",
+    "fishing",
+    "desktop-pet",
+    "cozy-game",
+    "electron",
+    "aquarium"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
