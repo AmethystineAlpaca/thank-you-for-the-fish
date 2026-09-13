@@ -15,7 +15,13 @@ A cozy idle fishing companion for your Mac desktop. 小憩海湾 · Thank You fo
 
 </div>
 
-![Desktop view: the fishing boat floating above an ocean wallpaper on a Mac](docs/images/desktop-showcase.png)
+**Free & open source · Apple Silicon Mac · No account · Offline after setup**  
+Current interface: **简体中文** ([English button guide](#download--play)). The download is unsigned; first-launch instructions are below.
+
+<video controls muted playsinline width="100%" poster="docs/images/desktop-showcase.png">
+  <source src="docs/videos/desktop-showcase.mp4" type="video/mp4">
+  Your browser does not support embedded video. [Watch the desktop recording](docs/videos/desktop-showcase.mp4).
+</video>
 
 *This is what it looks like on your desktop: a little boat in the corner, keeping you company while the next fish finds its way to the hook.*
 
@@ -128,6 +134,10 @@ npm run package
 Output: `dist/Thank You for the Fish-darwin-arm64/Thank You for the Fish.app`. The root-level `双击启动小憩海湾.command` launcher opens this local build. Rebuild after source changes to update it. Intel Mac build instructions and verification commands are in the [development guide](docs/DEVELOPMENT.md).
 
 ## Help this little boat find more desks
+
+**What was your first catch?** Open its detail view, take a screenshot, and [share it in Discussions](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/discussions). A normal little fish counts, too. Tell us its name, trait, and the corner of your desktop it calls home.
+
+Want to introduce the app to a friend or community? The [sharing kit](docs/SHARE.md) has ready-to-use images, GIFs, and short descriptions in English and Chinese.
 
 If it made a quiet afternoon a little better, **give the repo a star or share it with someone who could use a tiny ocean**.
 

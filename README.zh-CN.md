@@ -8,7 +8,13 @@
 [![Tests](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml/badge.svg)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-![桌面效果图：小船停在 Mac 桌面一角，等下一条鱼上钩](docs/images/desktop-showcase.png)
+**免费开源 · M 系列 Mac · 无需注册 · 安装后可离线玩**  
+当前界面为简体中文，下载包尚未签名与公证；[下载与首次打开说明](#马上开钓)。
+
+<video controls muted playsinline width="100%" poster="docs/images/desktop-showcase.png">
+  <source src="docs/videos/desktop-showcase.mp4" type="video/mp4">
+  您的浏览器不支持嵌入视频。[观看桌面录屏](docs/videos/desktop-showcase.mp4)。
+</video>
 
 *桌面效果图：小船就这样停在桌面一角，陪你等下一条鱼上钩。*
 
@@ -153,6 +159,10 @@ npm run package
 收藏自动保存在本机，退出不会清空。**退出后不累计离线鱼获，重新启动会重新计时；电脑休眠后恢复，最多补收一条。** 请勿同时运行开发版和打包版。更多日常启动说明见[启动说明.txt](启动说明.txt)。造型、稀有度、尺寸和贝壳估值均为游戏化表达。
 
 ## 帮小船漂到更多人的桌面
+
+**今天第一条，钓到了什么？** 打开鱼获详情截张图，到 [Discussions 晒晒你的鱼](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/discussions)。普通小鱼也算，留个名字、性状，再说说你把小船放在桌面的哪个角落。
+
+想介绍给朋友或社区？[分享素材包](docs/SHARE.md#中文)里有中文封面、真实动图和可直接使用的简短介绍。
 
 如果它让你的某个下午多了一点快乐，欢迎点个 **Star**，或者把它分享给也想在桌角养一片海的朋友。遇到问题、有新点子、想帮忙翻译界面，都可以 [开个 Issue](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/issues) 或看看[贡献说明](CONTRIBUTING.md)。
 
