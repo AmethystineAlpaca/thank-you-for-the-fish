@@ -3,6 +3,10 @@
 # Thank You for the Fish 🐟
 
 **Your work is done. Your shift isn't. Go fishing.**
+**上班没啥事儿，又不能立马走，怎么办？就摸鱼！**
+
+
+
 
 A tiny boat, a hundred sea creatures, and a little joy between tasks.<br>
 A cozy idle fishing companion for your Mac desktop. 小憩海湾 · Thank You for the Fish
