@@ -3,23 +3,25 @@
 # Thank You for the Fish 🐟
 
 **Your work is done. Your shift isn't. Go fishing.**
+
 **上班没啥事儿，又不能立马走，怎么办？就摸鱼！**
 
-
-
-
 A tiny boat, a hundred sea creatures, and a little joy between tasks.<br>
+
 A cozy idle fishing companion for your Mac desktop. 小憩海湾 · Thank You for the Fish
 
 **English** · [简体中文](README.zh-CN.md)
 
-[![Download for Mac](https://img.shields.io/badge/Download-Mac_Apple_Silicon-477f72?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
+[![Download for Mac](https://img.shields.io/badge/Download-Mac_Apple_Silicon-477f72?style=for-the-badge\&logo=apple\&logoColor=white)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
+
 [![Tests](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml/badge.svg)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 </div>
 
-**Free & open source · Apple Silicon Mac · No account · Offline after setup**  
+**Free & open source · Apple Silicon Mac · No account · Offline after setup**
+
 Current interface: **简体中文** ([English button guide](#download--play)). The download is unsigned; first-launch instructions are below.
 
 ![Thank You for the Fish desktop demo](docs/images/thank-you-for-the-fish-demo-small.gif)
@@ -34,7 +36,7 @@ Then, in the corner of your screen, a float dips. A rod bends. A little fish lea
 
 Thank You for the Fish puts a miniature fishing boat on your desktop. It quietly waits for bites while you do your thing, then adds each catch to your collection. No frantic clicking. No daily chores. Just a small, surprisingly delightful reason to glance away from your spreadsheet.
 
-![Actual app: browse your fish collection and discover the ocean field guide](docs/images/collection-tour.gif)
+![Animated fish trait showcase](docs/images/appearance-motion.gif)
 
 [Download & play](#download--play) · [Meet your next catch](#100-sea-creatures-400-ways-to-get-distracted) · [Run from source](#run-from-source) · [Contribute](CONTRIBUTING.md)
 
@@ -62,31 +64,28 @@ And then there's the fish that makes you say, **“Okay. Just one more.”**
 
 Each species can appear in **four traits: 400 species-and-trait combinations**, with varying lengths, weights, and collection values.
 
-| Trait | The reason you opened the basket again |
-| --- | --- |
-| **Normal** | Natural colors. Quietly charming. You were attached from the first catch. |
-| **Alternate** | A familiar fish in an unexpected palette. Hang on—this one's different. |
-| **Glow** | A bright neon outline follows the fins and tail, breathing gently with the luminous body. Eyes and markings stay clear. |
-| **Prismatic** | Flowing bands of color, a sweeping pearly sheen, and colorful sparkles. This one gets the big preview. |
+| Trait         | The reason you opened the basket again                                                                                  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Normal**    | Natural colors. Quietly charming. You were attached from the first catch.                                               |
+| **Alternate** | A familiar fish in an unexpected palette. Hang on—this one's different.                                                 |
+| **Glow**      | A bright neon outline follows the fins and tail, breathing gently with the luminous body. Eyes and markings stay clear. |
+| **Prismatic** | Flowing bands of color, a sweeping pearly sheen, and colorful sparkles. This one gets the big preview.                  |
 
 Special palettes follow each creature's natural body colors: icy blue, lilac, and rose for cool tones; apricot gold, coral pink, and lavender for warm tones.
 
-![Animated comparison of a blue tang and a dumbo octopus: normal on the left, glow in the middle, and prismatic on the right](docs/images/appearance-motion.gif)
-
-*Left to right: Normal · Glow · Prismatic. This comparison uses the game's renderer with matching body sizes. Special effects also animate on visible cards in your basket.*
-
 Open a catch's detail view to watch tails wag, tentacles sway, and fins gently ripple. You may forget you only came here to check its shell value.
-
-*App demos use isolated sample collections. The desktop catch is triggered for the demonstration; normal fishing uses a random 5–20 minute interval.*
 
 ## Keep the fish. Collect the little wins.
 
 Your basket keeps track of every catch, discovered species, special trait, and shell value. Search by name, filter by trait, or sort by newest catch, value, or weight.
 
-- **Make it your pace:** choose a random bite interval anywhere within 1–120 minutes, or pause fishing.
-- **Try before you wait:** “试钓一下” previews a catch without changing your real collection or timer.
-- **Offline after setup:** fishing, artwork, and saves work locally. No account required.
-- **Shells are just collection value:** there is no shop, selling, or trading.
+* **Make it your pace:** choose a random bite interval anywhere within 1–120 minutes, or pause fishing.
+
+* **Try before you wait:** “试钓一下” previews a catch without changing your real collection or timer.
+
+* **Offline after setup:** fishing, artwork, and saves work locally. No account required.
+
+* **Shells are just collection value:** there is no shop, selling, or trading.
 
 Collections save automatically on your Mac. Quitting keeps your fish, but doesn't accumulate offline catches. Relaunching starts a fresh wait; waking from sleep can yield at most one catch. Avoid running the development and packaged apps together.
 
@@ -97,20 +96,22 @@ Collections save automatically on your Mac. Quitting keeps your fish, but doesn'
 **For Apple Silicon Macs (M-series chips):**
 
 1. Open the [latest release](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest) and download `thank-you-for-the-fish-macos-arm64.zip`.
+
 2. Unzip it, then drag **Thank You for the Fish.app** into **Applications**.
+
 3. Open the app. A little boat appears on your desktop, and **Thank You for the Fish** appears in the menu bar. You're fishing.
 
 The current build is **not Developer ID signed or notarized**. If macOS blocks opening it, follow Apple's [instructions for opening an app from an unidentified developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/mac), after checking that you downloaded it from this repository's release page.
 
-| What you want to do | Where to click |
-| --- | --- |
-| Open your basket | **鱼篓** below the boat, or **Thank You for the Fish → 打开鱼篓** in the menu bar |
-| Browse the field guide | **海洋图鉴** in the basket sidebar |
-| Change fishing settings | **垂钓设置**, or **Thank You for the Fish → 打开设置…** |
-| Pause / resume | The **Ⅱ / ▶** button below the boat |
-| Resize the boat | Drag **◢** in its lower-right corner; double-click to reset |
-| Find a hidden boat | **Thank You for the Fish → 显示小船** |
-| Quit | **退出 Thank You for the Fish** in the menu bar or the basket's lower-left corner |
+| What you want to do     | Where to click                                                                  |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| Open your basket        | **鱼篓** below the boat, or **Thank You for the Fish → 打开鱼篓** in the menu bar     |
+| Browse the field guide  | **海洋图鉴** in the basket sidebar                                                  |
+| Change fishing settings | **垂钓设置**, or **Thank You for the Fish → 打开设置…**                                 |
+| Pause / resume          | The **Ⅱ / ▶** button below the boat                                             |
+| Resize the boat         | Drag **◢** in its lower-right corner; double-click to reset                     |
+| Find a hidden boat      | **Thank You for the Fish → 显示小船**                                               |
+| Quit                    | **退出 Thank You for the Fish** in the menu bar or the basket's lower-left corner |
 
 ## Run from source
 
