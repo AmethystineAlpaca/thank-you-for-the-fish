@@ -15,11 +15,110 @@ function load(img,file){return new Promise((resolve,reject)=>{img.onload=resolve
 const ready=Promise.all([load(boat,'boat.png'),...atlases.map(atlas=>load(atlas.image,atlas.file))]);
 const reefSlots=[0,2,3,4,5,6,7,8,9,10,1,11,12,13,14,15,16,17,18,19];
 const fishFrames=new Map(),sceneStates=new WeakMap();
+const appearances=new Map();
+// Pick a palette from the actual sprite, so the light follows its body and fins.
+const palettes=[
+ {hue:8,alternate:328,glow:'#ee9eac',pearl:['#f2b5c4','#ffe4c7','#c7bce8']},
+ {hue:38,alternate:348,glow:'#e9ba79',pearl:['#f4c7a3','#f9e8ce','#dabce7']},
+ {hue:85,alternate:192,glow:'#e2c78f',pearl:['#e9d9ae','#b8dbe9','#d6c4ed']},
+ {hue:165,alternate:218,glow:'#91cce6',pearl:['#b9dfe8','#ccd0ef','#efd0de']},
+ {hue:215,alternate:266,glow:'#91bbed',pearl:['#aed5ef','#cbbcec','#f1cbdc']},
+ {hue:275,alternate:207,glow:'#beaaec',pearl:['#d6bcec','#efc9dc','#b9dceb']},
+ {hue:330,alternate:28,glow:'#e9a9c6',pearl:['#edbed6','#e0c6ed','#f5dfc0']}
+];
+const hueDistance=(a,b)=>(a-b+540)%360-180;
+function hsl(r,g,b){
+ r/=255;g/=255;b/=255;
+ const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min,l=(max+min)/2;
+ if(!d)return [0,0,l];
+ const h=max===r?((g-b)/d+6)%6:max===g?(b-r)/d+2:(r-g)/d+4;
+ return [h*60,d/(1-Math.abs(2*l-1)),l];
+}
+function rgb(h,s,l){
+ const a=s*Math.min(l,1-l);
+ return [0,8,4].map(n=>{const k=(n+h/30)%12;return 255*(l-a*Math.max(-1,Math.min(k-3,9-k,1)))});
+}
+function appearance(source,f){
+ if(appearances.has(f.id))return appearances.get(f.id);
+ const pixels=source.getContext('2d').getImageData(0,0,source.width,source.height),data=pixels.data;
+ const bins=new Float64Array(24),bounds={left:source.width,top:source.height,right:0,bottom:0};
+ for(let i=0;i<data.length;i+=4){
+  if(data[i+3]>128){
+   const x=i/4%source.width,y=Math.floor(i/4/source.width);
+   bounds.left=Math.min(bounds.left,x);bounds.right=Math.max(bounds.right,x);
+   bounds.top=Math.min(bounds.top,y);bounds.bottom=Math.max(bounds.bottom,y);
+  }
+  const [h,s,l]=hsl(data[i],data[i+1],data[i+2]);
+  if(data[i+3]<128||l<.12||l>.88)continue;
+  bins[Math.round(h/15)%24]+=s*s*(1-Math.abs(l-.5));
+ }
+ const dominant=bins.some(v=>v>0)?bins.indexOf(Math.max(...bins))*15:215;
+ const palette=palettes.reduce((best,p)=>Math.abs(hueDistance(p.hue,dominant))<Math.abs(hueDistance(best.hue,dominant))?p:best);
+ const prism=palette.pearl.map(color=>{
+  const [h]=hsl(...color.slice(1).match(/../g).map(v=>parseInt(v,16)));
+  return `hsl(${h} 72% 65%)`;
+ });
+ const result={palette,prism,bounds,alternate:null,emission:null};
+ appearances.set(f.id,result);return result;
+}
+function alternateSource(source,look){
+ if(look.alternate)return look.alternate;
+ const alternate=document.createElement('canvas');alternate.width=source.width;alternate.height=source.height;
+ const ac=alternate.getContext('2d'),pixels=source.getContext('2d').getImageData(0,0,source.width,source.height),data=pixels.data;
+ for(let i=0;i<data.length;i+=4){
+  if(!data[i+3])continue;
+  const [h,s,l]=hsl(data[i],data[i+1],data[i+2]);
+  // Keep eyes, pale bellies, stripes and highlights; recolor only pigmented areas.
+  const amount=Math.min(1,s/.22)*Math.min(1,Math.max(0,(l-.08)/.16));
+  const target=(look.palette.alternate+Math.max(-38,Math.min(38,hueDistance(h,look.palette.hue)*.35))+360)%360;
+  const color=rgb(target,Math.min(.62,s*.78),l);
+  for(let j=0;j<3;j++)data[i+j]+=(color[j]-data[i+j])*amount;
+ }
+ ac.putImageData(pixels,0,0);look.alternate=alternate;return alternate;
+}
+function emissionSource(source,look){
+ if(look.emission)return look.emission;
+ const emission=document.createElement('canvas');emission.width=source.width;emission.height=source.height;
+ const pixels=source.getContext('2d').getImageData(0,0,source.width,source.height),data=pixels.data;
+ const tint=look.palette.glow.slice(1).match(/../g).map(v=>parseInt(v,16));
+ for(let i=0;i<data.length;i+=4){
+  // Bloom comes from illuminated scales and markings, leaving dark eyes and shadows intact.
+  const light=(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;
+  const strength=Math.max(0,Math.min(1,(light-.38)/.48));
+  data[i+3]*=strength*strength;
+  for(let j=0;j<3;j++)data[i+j]=tint[j]*.35+255*.65;
+ }
+ emission.getContext('2d').putImageData(pixels,0,0);look.emission=emission;return emission;
+}
+function sparkles(c,look,source,x,y,dw,dh,t,id,prism){
+ const b=look.bounds,left=x+b.left/source.width*dw,top=y+b.top/source.height*dh;
+ const width=(b.right-b.left)/source.width*dw,height=(b.bottom-b.top)/source.height*dh;
+ const points=[[.18,.1],[.72,.06],[.93,.55],[.38,.72],[.07,.53],[.66,.9],[.5,.32]];
+ c.save();
+ points.forEach(([px,py],i)=>{
+  const phase=t*(prism?2.2:1.8)+i*2.4+id*.63;
+  const pulse=Math.pow((Math.sin(phase)+1)/2,3),alpha=.22+pulse*.78;
+  const radius=Math.max(1.7,dw*.022)*(i%3===0?1.25:.8)*(.65+pulse*.55);
+  const color=prism?look.prism[i%3]:look.palette.glow;
+  c.save();c.translate(left+width*px,top+height*py+Math.sin(phase*.6)*dh*.014);
+  c.globalAlpha=alpha;c.shadowColor=color;c.shadowBlur=radius*1.8;
+  c.fillStyle=color;c.beginPath();
+  for(let j=0;j<8;j++){
+   const angle=j*Math.PI/4,r=j%2?radius*.22:radius;
+   const xx=Math.cos(angle)*r,yy=Math.sin(angle)*r;
+   if(j)c.lineTo(xx,yy);else c.moveTo(xx,yy);
+  }
+  c.closePath();c.fill();c.shadowBlur=0;
+  c.fillStyle='#fffdf6';c.beginPath();c.arc(0,0,Math.max(.6,radius*.23),0,Math.PI*2);c.fill();
+  c.restore();
+ });
+ c.restore();
+}
 function fish(canvas,f,trait='normal',t=0,catchRecord=null){
  const c=canvas.getContext('2d'),atlas=atlases[Math.floor(f.id/20)],img=atlas?.image;
  c.clearRect(0,0,canvas.width,canvas.height);
  if(!img?.complete||!img.naturalWidth)return;
- // One neutral source per species. Every special appearance is a composited filter.
+ // Keep one neutral source per species, with cached palettes and alternate colors.
  let source=fishFrames.get(f.id);
  if(!source){
   source=document.createElement('canvas');source.width=384;source.height=240;
@@ -56,28 +155,44 @@ function fish(canvas,f,trait='normal',t=0,catchRecord=null){
   c.globalCompositeOperation='source-in';c.fillStyle='#263f43';c.fillRect(0,0,w,h);c.restore();return;
  }
  const kind=['octopus','squid','horse','leafy','dumbo','vampire','blanket','garden'].includes(f.shape)?2:['manta','ray','electric'].includes(f.shape)?3:1;
+ const look=trait==='normal'?null:appearance(source,f);
+ const body=trait==='alternate'?alternateSource(source,look):source;
  c.save();c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
- if(trait==='alternate')c.filter=`hue-rotate(${[115,200,285][f.id%3]}deg) saturate(1.7)`;
- if(trait==='glow')c.filter='saturate(1.4) brightness(1.18) drop-shadow(0px 0px 5px #47ffad) drop-shadow(0px 0px 12px #61f9d5)';
- Motion.draw(c,source,x,y,dw,dh,t,kind);c.restore();
+ if(trait==='glow'){
+  const radius=Math.max(1.5,dw*.028)*(1+Math.sin(t*1.5)*.12);
+  c.filter=`brightness(1.14) saturate(1.12) drop-shadow(0px 0px ${radius}px ${look.palette.glow}ee) drop-shadow(0px 0px ${radius*2.2}px ${look.palette.glow}a0)`;
+ }
+ Motion.draw(c,body,x,y,dw,dh,t,kind);c.restore();
+ if(trait==='glow'){
+  const emission=emissionSource(source,look),pulse=.9+Math.sin(t*1.5)*.1;
+  c.save();c.globalCompositeOperation='screen';c.globalAlpha=.62*pulse;
+  c.filter=`blur(${Math.max(.8,dw*.014)}px)`;Motion.draw(c,emission,x,y,dw,dh,t,kind);
+  c.filter='none';c.globalAlpha=.42*pulse;Motion.draw(c,emission,x,y,dw,dh,t,kind);c.restore();
+ }
  if(trait==='prism'){
-  // Clip the holographic rainbow and moving foil reflection to the fish alpha.
+  // A visible opalescent color wave, with the original scale shading underneath.
   let foil=canvas._fishFoil;
   if(!foil){foil=document.createElement('canvas');canvas._fishFoil=foil}
   if(foil.width!==w||foil.height!==h){foil.width=w;foil.height=h}
   const fc=foil.getContext('2d');fc.clearRect(0,0,w,h);
   Motion.draw(fc,source,x,y,dw,dh,t,kind);
   fc.globalCompositeOperation='source-in';
-  const shift=Math.sin(t*.7)*dw*.25;
-  const rainbow=fc.createLinearGradient(x+dw*.25+shift,y,x+dw*.75+shift,y+dh);
-  ['#ff28b5','#ffcf18','#28f790','#16cfff','#7840ff','#ff36c4'].forEach((color,i)=>rainbow.addColorStop(i/5,color));
-  fc.fillStyle=rainbow;fc.fillRect(0,0,w,h);
-  fc.globalCompositeOperation='source-atop';
-  const shine=fc.createLinearGradient(x-dw+t%4/4*dw*3,0,x-dw+t%4/4*dw*3+dw*.35,h);
-  shine.addColorStop(0,'#ffffff00');shine.addColorStop(.5,'#ffffffcc');shine.addColorStop(1,'#ffffff00');
+  const shift=Math.sin(t*.85)*dw*.28;
+  const pearl=fc.createLinearGradient(x+shift,y,x+dw*.85+shift,y+dh*.35);
+  [0,1,2,0,1].forEach((index,i)=>pearl.addColorStop(i/4,look.prism[index]));
+  fc.fillStyle=pearl;fc.fillRect(0,0,w,h);fc.globalCompositeOperation='source-over';
+  c.save();c.globalCompositeOperation='color';c.globalAlpha=.7;c.drawImage(foil,0,0);
+  c.globalCompositeOperation='soft-light';c.globalAlpha=.3;c.drawImage(foil,0,0);c.restore();
+  // Mask the travelling reflection separately so it brightens the existing scales.
+  fc.clearRect(0,0,w,h);Motion.draw(fc,source,x,y,dw,dh,t,kind);
+  fc.globalCompositeOperation='source-in';
+  const sweep=x-dw*.5+(t%4.8)/4.8*dw*2;
+  const shine=fc.createLinearGradient(sweep,y,sweep+dw*.3,y+dh*.18);
+  shine.addColorStop(0,'#fff6ed00');shine.addColorStop(.42,'#e8dfff60');shine.addColorStop(.5,'#fffaf0dd');shine.addColorStop(.58,'#d9edff60');shine.addColorStop(1,'#fff6ed00');
   fc.fillStyle=shine;fc.fillRect(0,0,w,h);fc.globalCompositeOperation='source-over';
-  c.save();c.globalCompositeOperation='color';c.globalAlpha=.85;c.drawImage(foil,0,0);c.restore();
+  c.save();c.globalCompositeOperation='screen';c.globalAlpha=.7;c.drawImage(foil,0,0);c.restore();
  }
+ if(trait==='glow'||trait==='prism')sparkles(c,look,source,x,y,dw,dh,t,f.id,trait==='prism');
 }
 function scene(canvas,t,catching=false,record=null,elapsed=null){
  const w=640,h=372;if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}

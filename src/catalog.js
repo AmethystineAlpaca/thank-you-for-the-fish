@@ -10,7 +10,7 @@ const designs=typeof module!=='undefined'?require('./fish-designs'):root.FishDes
 const fish=groups.flatMap(([habitat,rarity,names],g)=>names.map((name,i)=>{
 const id=g*20+i,d=designs[id];return {id,name,habitat,rarity,color:d.colors[1],shape:d.form,base:Math.round(12*Math.pow(2.5,rarity-1)*(1+i/20)),length:Math.round((g+1)*9+i*2+8),description:d.description};
 }));
-const traits=[{id:'normal',name:'普通',mult:1,color:'#9bacad',weight:72},{id:'alternate',name:'异色',mult:2.5,color:'#c2a3ed',weight:16},{id:'glow',name:'荧光',mult:4,color:'#90efc0',weight:8},{id:'prism',name:'炫彩',mult:8,color:'#f5c780',weight:4}];
+const traits=[{id:'normal',name:'普通',mult:1,color:'#9bacad',weight:72},{id:'alternate',name:'异色',mult:2.5,color:'#aa86bb',weight:16},{id:'glow',name:'荧光',mult:4,color:'#7e9fc7',weight:8},{id:'prism',name:'炫彩',mult:8,color:'#bc91a7',weight:4}];
 function weighted(items,weights,rng){let n=rng()*weights.reduce((a,b)=>a+b,0);return items.find((_,i)=>(n-=weights[i])<0)||items.at(-1)}
 function catchFish(rng=Math.random,now=Date.now()){const f=weighted(fish,fish.map(f=>[50,28,14,6,2][f.rarity-1]),rng);const t=weighted(traits,traits.map(t=>t.weight),rng);const scale=.55+rng()*1.25;return {id:requireId(now,rng),species:f.id,trait:t.id,length:Math.round(f.length*scale*10)/10,weight:Math.round(50*Math.pow(scale,3)),value:Math.round(f.base*t.mult*scale*scale),time:now};}
 function requireId(now,rng){return now.toString(36)+'-'+rng().toString(36).slice(2,12)}

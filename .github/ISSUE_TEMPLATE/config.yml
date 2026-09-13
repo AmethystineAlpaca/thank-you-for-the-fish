@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Share your catch / 晒晒你的鱼
+    url: https://github.com/AmethystineAlpaca/thank-you-for-the-fish/discussions
+    about: Show your first catch or desktop boat setup / 分享第一条鱼或你的小船桌面布置
+  - name: Download and first launch / 下载与首次打开
+    url: https://github.com/AmethystineAlpaca/thank-you-for-the-fish#download--play
+    about: Apple Silicon download, macOS opening instructions, and an English button guide / M 系列 Mac 下载与打开说明
