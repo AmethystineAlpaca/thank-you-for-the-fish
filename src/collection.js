@@ -16,7 +16,8 @@ const cardVisibility = new IntersectionObserver((entries) => {
   }
 });
 function animateCard(card, item) {
-  if (item.undiscovered || !["glow", "prism"].includes(item.trait)) return;
+  // if (item.undiscovered || !["glow", "prism"].includes(item.trait)) return;
+  if (item.undiscovered) return;
   animatedCards.set(card, {
     item,
     canvas: card.querySelector("canvas"),
