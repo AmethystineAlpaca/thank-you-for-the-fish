@@ -24,7 +24,7 @@ A cozy idle fishing companion for your Mac desktop. 小憩海湾 · Thank You fo
 
 Current interface: **简体中文** ([English button guide](#download--play)). The download is unsigned; first-launch instructions are below.
 
-![Thank You for the Fish desktop demo](docs/images/thank-you-for-the-fish-demo-small.gif)
+![Thank You for the Fish desktop demo](docs/images/demo.gif)
 
 *This is what it looks like on your desktop: a little boat in the corner, keeping you company while the next fish finds its way to the hook.*
 
