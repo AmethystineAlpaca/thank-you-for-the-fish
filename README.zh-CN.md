@@ -11,7 +11,7 @@
 **免费开源 · M 系列 Mac · 无需注册 · 安装后可离线玩**  
 当前界面为简体中文，下载包尚未签名与公证；[下载与首次打开说明](#马上开钓)。
 
-![Thank You for the Fish desktop demo](artifacts/thank-you-for-the-fish-demo-small.gif)
+![Thank You for the Fish desktop demo](docs/images/thank-you-for-the-fish-demo-small.gif)
 
 *桌面效果图：小船就这样停在桌面一角，陪你等下一条鱼上钩。*
 
