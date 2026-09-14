@@ -10,14 +10,18 @@ const designs=typeof module!=='undefined'?require('./fish-designs'):root.FishDes
 const fish=groups.flatMap(([habitat,rarity,names],g)=>names.map((name,i)=>{
 const id=g*20+i,d=designs[id];return {id,name,habitat,rarity,color:d.colors[1],shape:d.form,base:Math.round(12*Math.pow(2.5,rarity-1)*(1+i/20)),length:Math.round((g+1)*9+i*2+8),description:d.description};
 }));
+const expansion=typeof module!=='undefined'?require('./marine-expansion'):root.MarineExpansion;
+fish.push(...expansion.map(f=>({id:f.id,name:f.name,habitat:f.habitat,rarity:f.rarity,color:f.colors[1],shape:f.form,base:Math.round(12*Math.pow(2.5,f.rarity-1)*(1+(f.id%20)/20)),length:f.length,description:f.description,legendary:f.legendary})));
+// Per-species weights: legends are ten times rarer than a deep-blue species.
+const rarityWeights=[50,28,14,6,2,.2];
 const traits=[{id:'normal',name:'普通',mult:1,color:'#9bacad',weight:72},{id:'alternate',name:'异色',mult:2.5,color:'#aa86bb',weight:16},{id:'glow',name:'荧光',mult:4,color:'#7e9fc7',weight:8},{id:'prism',name:'炫彩',mult:8,color:'#bc91a7',weight:4}];
 function weighted(items,weights,rng){let n=rng()*weights.reduce((a,b)=>a+b,0);return items.find((_,i)=>(n-=weights[i])<0)||items.at(-1)}
-function catchFish(rng=Math.random,now=Date.now()){const f=weighted(fish,fish.map(f=>[50,28,14,6,2][f.rarity-1]),rng);const t=weighted(traits,traits.map(t=>t.weight),rng);const scale=.55+rng()*1.25;return {id:requireId(now,rng),species:f.id,trait:t.id,length:Math.round(f.length*scale*10)/10,weight:Math.round(50*Math.pow(scale,3)),value:Math.round(f.base*t.mult*scale*scale),time:now};}
+function catchFish(rng=Math.random,now=Date.now()){const f=weighted(fish,fish.map(f=>rarityWeights[f.rarity-1]),rng);const t=weighted(traits,traits.map(t=>t.weight),rng);const scale=.55+rng()*1.25;return {id:requireId(now,rng),species:f.id,trait:t.id,length:Math.round(f.length*scale*10)/10,weight:Math.round(50*Math.pow(scale,3)),value:Math.round(f.base*t.mult*scale*scale),time:now};}
 function requireId(now,rng){return now.toString(36)+'-'+rng().toString(36).slice(2,12)}
 function delay(min,max,rng=Math.random){return (min+rng()*(max-min))*60000}
 // Old saves keep their original catch records; infer missing grams from their size.
 function catchWeight(c){if(Number.isFinite(c.weight)&&c.weight>0)return c.weight;const f=fish[c.species];return Math.max(1,Math.round(50*Math.pow((c.length||f.length)/f.length,3)))}
 // Cube-root scaling represents volume while leaving room for fins and glow.
 function displayScale(c){return Math.max(.22,Math.min(.92,.52*Math.cbrt(catchWeight(c)/50)))}
-const api={fish,traits,catchFish,delay,catchWeight,displayScale};if(typeof module!=='undefined')module.exports=api;else root.Sea=api;
+const api={fish,traits,rarityWeights,catchFish,delay,catchWeight,displayScale};if(typeof module!=='undefined')module.exports=api;else root.Sea=api;
 })(typeof window==='undefined'?globalThis:window);

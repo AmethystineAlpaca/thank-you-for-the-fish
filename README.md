@@ -22,6 +22,26 @@ A cozy idle fishing companion for your Mac desktop.
 
 **Free & open source · Apple Silicon Mac · No account · Works offline after setup**
 
+## Changelog
+
+### Latest Release
+
+The sea just got a little more crowded.
+
+- **Expanded the collection from 100 to 160 catchable creatures**  
+  Added 60 new marine creatures, including **10 legendary creatures** with their own sixth rarity tier, golden collection badges, and dedicated filter. Legendary creatures can also appear with all four traits: Normal, Shiny, Fluorescent, and Iridescent.
+
+- **Fixed various bugs**  
+  Squashed a number of issues across the collection, creature display, special traits, and general fishing experience.
+
+- **Improved creature animations**  
+  Refined the movement of fish and other marine creatures, with smoother tails, fins, tentacles, and special visual effects.
+
+- **Added resting and automatic pause**  
+  When fishing is paused, the fisherman now puts down the rod and lies back to enjoy the view. You can also choose how many catches make up a fishing session. Once the limit is reached, the fisherman automatically takes a break — press **▶** whenever you're ready to start another round.
+
+**More fish. Better moves. And the fisherman finally learned how to take a break.**
+
 > The current app interface is in **Simplified Chinese**.  
 > English button references are included in the [Download & play](#download--play) section below.
 
@@ -61,7 +81,7 @@ Just a tiny ocean living beside your spreadsheets.
 </p>
 
 **[Download & play](#download--play)** ·
-**[Meet the fish](#100-sea-creatures-400-ways-to-get-distracted)** ·
+**[Meet the fish](#160-sea-creatures-640-ways-to-get-distracted)** ·
 **[Run from source](#run-from-source)** ·
 **[Contribute](CONTRIBUTING.md)**
 
@@ -89,9 +109,11 @@ A small activity indicator gradually shifts from warm red toward soft green, giv
 
 ---
 
-## 100 sea creatures. 400 ways to get distracted.
+## 160 sea creatures. 640 ways to get distracted.
 
-There are **100 fish and other marine creatures** to discover across five field-guide groups, from colorful reef neighbors to strange deep-sea visitors.
+There are **160 fish and other marine creatures** to discover across nine field-guide groups, from colorful reef neighbors to strange deep-sea visitors.
+
+The expansion adds 50 marine animals, including crustaceans, shells, jellyfish, sea slugs, turtles and marine mammals, plus 10 fictional legendary creatures. Legends have a sixth rarity tier, a gold collection badge and their own filter; all four appearance traits can occur.
 
 Undiscovered creatures stay hidden behind silhouettes and question marks.
 
@@ -101,7 +123,7 @@ Then things get slightly more dangerous for your productivity.
 
 Every species can appear in **four different traits**, giving you:
 
-**100 species × 4 traits = 400 possible collection variants.**
+**160 species × 4 traits = 640 possible collection variants.**
 
 | Trait | What makes it special |
 | --- | --- |
@@ -137,6 +159,9 @@ A few useful things:
 
 - **Try before you wait**  
   Use **试钓一下** to preview a catch without changing your real collection or fishing timer.
+
+- **Take a break after a few fish**
+  Fishing automatically pauses after **10 catches** by default. Change the count in fishing settings, then click **▶** to start a fresh round. Preview catches do not count. While resting, the angler lays the rod aside and reclines to watch the sky. Round progress and rest state survive restarting the app.
 
 - **Everything stays local**  
   Your collection, settings, artwork, and saves live on your Mac.

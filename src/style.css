@@ -801,6 +801,36 @@ dialog::backdrop {
   gap: 7px;
 }
 
+#settings-form .rest-setting {
+  grid-column: 1/-1;
+}
+
+#restAfter {
+  max-width: 260px;
+}
+
+#rest-help {
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+.rest-message {
+  position: absolute;
+  top: 4px;
+  left: 20px;
+  right: 20px;
+  margin: 0;
+  padding: 7px 9px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #526b83;
+  background: #faf4e9f2;
+  border: 1px solid #d3c8b6c9;
+  border-radius: 10px;
+  pointer-events: none;
+}
+
 .primary {
   padding: 11px 18px;
   border: 1px solid #4e6379;
@@ -1205,3 +1235,11 @@ dialog::backdrop {
     animation: none;
   }
 }
+
+/* Legends remain a species rarity, independent of the four appearance traits. */
+.fish-card[data-rarity="legendary"] {
+  border-color: #c7a768;
+  box-shadow: inset 0 0 22px #e8c17b18, 0 3px 12px #51381d12;
+}
+.fish-card[data-rarity="legendary"] .trait { color: #95651e; }
+.fish-card[data-rarity="legendary"] h3 { color: #92662b; }

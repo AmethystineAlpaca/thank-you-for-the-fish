@@ -1,0 +1,9 @@
+{
+  "mode": "built-in image_gen",
+  "useCase": "precise-object-edit",
+  "reference": "boat.png",
+  "output": "boat-resting.png",
+  "prompt": "Use case: precise-object-edit. Asset type: resting-state transparent sprite for an existing desktop fishing companion. Input image 1 is the EDIT TARGET. Edit this exact image, keep canvas dimensions and alignment unchanged (1536x1024). Change only the little angler's pose and fishing rod: the SAME child in straw hat, cream shirt, tan vest and navy trousers is now reclining comfortably along the interior of the boat, head to the left and feet toward the right, face tilted upward looking at the sky, arms relaxed or behind the head. Their backpack may support the head. The bamboo fishing rod is laid down along the boat rim beside them, no raised active fishing rod, with line and bobber resting near the right boat edge. Preserve precisely the wooden boat shape, scale and position, the hanging glowing lantern, tackle chest, ropes, turquoise water oval, coral, reflections, lighting, toy-like rounded 3D clay rendering and color palette. Do not redraw the scene or change viewpoint. Keep all objects inside canvas. Actual transparent alpha outside the existing softly glowing boat/water diorama, not an opaque background or checkerboard. No sky, horizon, added props, text, UI or watermark. This must feel like the same scene switching only from fishing to resting.",
+  "backgroundRefinement": "Change only the checkerboard background to perfectly uniform pure black (#000000), including gaps between lantern, hat and boat. Preserve every foreground object and its position. Soft glow fades into black. No checkerboard squares anywhere.",
+  "integration": "The built-in tool returned an opaque PNG despite transparent-background requests. The renderer keys connected exterior black once on load, retaining enclosed dark details; the generated source stays unchanged."
+}

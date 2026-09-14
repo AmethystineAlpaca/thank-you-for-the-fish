@@ -110,5 +110,7 @@ const rows=[
 ['napoleon','maze','326b70 75aea0 c1d7b1 7aaf9a',30,20,'round','额头高高隆起，嘴唇厚实，蓝绿色体侧绕着细密的波纹。']
 ];
 const designs=rows.map(([form,mark,colors,w,h,tail,description],id)=>({id,form,mark,colors:colors.split(' ').map(c=>'#'+c),w,h,tail,description}));
+const expansion=typeof module!=='undefined'?require('./marine-expansion'):root.MarineExpansion;
+designs.push(...expansion.map(f=>({id:f.id,form:f.form,mark:'plain',colors:f.colors,w:30,h:20,tail:'none',description:f.description})));
 if(typeof module!=='undefined')module.exports=designs;else root.FishDesigns=designs;
 })(typeof window==='undefined'?globalThis:window);

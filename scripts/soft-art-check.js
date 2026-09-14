@@ -7,10 +7,10 @@ app.whenReady().then(async()=>{
   await win.loadFile(path.join(__dirname,'../src/index.html'));
   const result=await win.webContents.executeJavaScript(`(async()=>{
    await Art.ready;
-   if(Art.upgradedSpecies!==100)throw Error('Incomplete art migration');
+   if(Art.upgradedSpecies!==Sea.fish.length)throw Error('Incomplete art migration');
    const canvas=(w=384,h=240)=>Object.assign(document.createElement('canvas'),{width:w,height:h});
    const signatures=new Set(),sheets=[];
-   for(let group=0;group<5;group++){
+   for(let group=0;group<Math.ceil(Sea.fish.length/20);group++){
     const board=canvas(1200,1100),b=board.getContext('2d');
     b.fillStyle='#eaf5f0';b.fillRect(0,0,1200,1100);
     b.fillStyle='#275950';b.font='bold 25px sans-serif';
@@ -39,8 +39,8 @@ app.whenReady().then(async()=>{
     }
     sheets.push(board.toDataURL());
    }
-   if(signatures.size!==100)throw Error('Duplicate sprites: '+signatures.size);
-   return {species:signatures.size,renders:500,staticSilhouettes:100,sheets};
+   if(signatures.size!==Sea.fish.length)throw Error('Duplicate sprites: '+signatures.size);
+   return {species:signatures.size,renders:Sea.fish.length*5,staticSilhouettes:Sea.fish.length,sheets};
   })()`);
   fs.mkdirSync('artifacts',{recursive:true});
   result.sheets.forEach((data,i)=>fs.writeFileSync('artifacts/soft-fish-'+i+'.png',Buffer.from(data.split(',')[1],'base64')));

@@ -1,6 +1,8 @@
 /* Reuse the finished image assets. No online generation or network calls at runtime. */
 (function () {
   const boat = new Image();
+  const restingBoat = new Image();
+  let restingSprite;
   const atlases = [
     { file: 'fish-0-alpha.png', cuts: [0, .20, .40, .575, .74, 1] },
     { file: 'fish-1-white.png', cuts: [0, .2, .4, .575, .78, 1], whiteBackground: true },
@@ -16,9 +18,45 @@
       file: 'fish-4-white.png', cuts: [0, 255, 493, 725, 977, 1254].map(y => y / 1254), whiteBackground: true,
       regions: { 13: [313.5, 725, 627, 961], 14: [627, 725, 940, 990], 17: [313.5, 961, 627, 1254], 18: [627, 990, 940, 1254] }
     }
+    , { file: 'fish-5-white.png', cuts: [0, 274, 538, 771, 984, 1278].map(y => y / 1278), whiteBackground: true },
+    { file: 'fish-6-white.png', cuts: [0, 245, 481, 736, 983, 1254].map(y => y / 1254), whiteBackground: true,
+      regions: { 11: [940.5, 465, 1254, 772], 15: [940.5, 736, 1254, 983] } },
+    { file: 'fish-7-white.png', cuts: [0, 251, 495, 707, 953, 1254].map(y => y / 1254), whiteBackground: true,
+      regions: { 2: [627, 0, 966, 251], 3: [960, 0, 1254, 251], 4: [0, 251, 376, 495], 5: [313.5, 285, 627, 495], 7: [940.5, 251, 1254, 465], 11: [940.5, 458, 1254, 728], 12: [0, 700, 313.5, 953], 15: [916, 707, 1254, 953], 17: [313.5, 935, 627, 1254] } }
   ].map(atlas => ({ ...atlas, image: new Image() }));
   function load(img, file) { return new Promise((resolve, reject) => { img.onload = resolve; img.onerror = () => reject(Error('Could not load ' + file)); img.src = 'assets/soft-sea/' + file }) }
-  const ready = Promise.all([load(boat, 'boat.png'), ...atlases.map(atlas => load(atlas.image, atlas.file))]);
+  // The resting artwork is supplied on black. Key only connected exterior
+  // darkness at load time, preserving enclosed dark details such as the eye.
+  function restingTexture(image) {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width; canvas.height = image.height;
+    const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height), data = pixels.data;
+    const w = canvas.width, h = canvas.height, visited = new Uint8Array(w * h), queue = new Int32Array(w * h);
+    let head = 0, tail = 0;
+    function visit(i) {
+      if (visited[i]) return;
+      visited[i] = 1;
+      const p = i * 4;
+      if (Math.max(data[p], data[p + 1], data[p + 2]) < 110) queue[tail++] = i;
+    }
+    for (let x = 0; x < w; x++) { visit(x); visit((h - 1) * w + x) }
+    for (let y = 0; y < h; y++) { visit(y * w); visit(y * w + w - 1) }
+    while (head < tail) {
+      const i = queue[head++], p = i * 4;
+      const brightness = Math.max(data[p], data[p + 1], data[p + 2]);
+      const alpha = Math.max(0, (brightness - 8) / 102);
+      data[p + 3] = Math.round(alpha * 255);
+      if (alpha > 0) for (let k = 0; k < 3; k++) data[p + k] = Math.min(255, data[p + k] / alpha);
+      if (i % w > 0) visit(i - 1);
+      if (i % w < w - 1) visit(i + 1);
+      if (i >= w) visit(i - w);
+      if (i < w * (h - 1)) visit(i + w);
+    }
+    ctx.putImageData(pixels, 0, 0);
+    return canvas;
+  }
+  const ready = Promise.all([load(boat, 'boat.png'), load(restingBoat, 'boat-resting.png').then(() => { restingSprite = restingTexture(restingBoat) }), ...atlases.map(atlas => load(atlas.image, atlas.file))]);
   const reefSlots = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 11, 12, 13, 14, 15, 16, 17, 18, 19];
   const fishFrames = new Map(), sceneStates = new WeakMap();
   const appearances = new Map();
@@ -347,6 +385,8 @@
     const c = canvas.getContext('2d'), atlas = atlases[Math.floor(f.id / 20)], img = atlas?.image;
     c.clearRect(0, 0, canvas.width, canvas.height);
     if (!img?.complete || !img.naturalWidth) return;
+    // Stable individual cadence; every appearance layer shares this clock.
+    t = t * (.94 + (f.id * 7 % 13) * .01) + f.id * 2.399963;
     // Keep one neutral source per species, with cached palettes and alternate colors.
     let source = fishFrames.get(f.id);
     if (!source) {
@@ -371,6 +411,26 @@
           function visit(i) { if (i < 0 || i >= seen.length || seen[i]) return; seen[i] = 1; const j = i * 4; if (a[j + 3] === 0 || (a[j] > 238 && a[j + 1] > 238 && a[j + 2] > 238)) { queue.push(i); a[j + 3] = 0 } }
           for (let x = 0; x < 384; x++) { visit(x); visit(239 * 384 + x) } for (let y = 0; y < 240; y++) { visit(y * 384); visit(y * 384 + 383) }
           for (let k = 0; k < queue.length; k++) { const i = queue[k]; if (i % 384) visit(i - 1); if (i % 384 < 383) visit(i + 1); visit(i - 384); visit(i + 384) }
+          if (f.id >= 100) {
+            // Irregular atlas silhouettes sometimes enter a neighboring rectangle.
+            // Keep the connected animal and drop detached fragments of its neighbors.
+            const labels = new Int32Array(384 * 240), pending = new Int32Array(labels.length);
+            let label = 0, largest = 0, largestSize = 0;
+            for (let start = 0; start < labels.length; start++) {
+              if (labels[start] || a[start * 4 + 3] < 8) continue;
+              label++; let head = 0, tail = 1; pending[0] = start; labels[start] = label;
+              while (head < tail) {
+                const i = pending[head++], x = i % 384, y = Math.floor(i / 384);
+                for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+                  const xx = x + dx, yy = y + dy, n = yy * 384 + xx;
+                  if (xx < 0 || xx >= 384 || yy < 0 || yy >= 240 || labels[n] || a[n * 4 + 3] < 8) continue;
+                  labels[n] = label; pending[tail++] = n;
+                }
+              }
+              if (tail > largestSize) { largestSize = tail; largest = label }
+            }
+            for (let i = 0; i < labels.length; i++) if (labels[i] !== largest) a[i * 4 + 3] = 0;
+          }
           sc.putImageData(pixels, 0, 0);
         }
       }
@@ -383,7 +443,7 @@
       c.save(); c.drawImage(source, x, (h - dh) / 2, dw, dh);
       c.globalCompositeOperation = 'source-in'; c.fillStyle = '#263f43'; c.fillRect(0, 0, w, h); c.restore(); return;
     }
-    const kind = ['octopus', 'squid', 'horse', 'leafy', 'dumbo', 'vampire', 'blanket', 'garden'].includes(f.shape) ? 2 : ['manta', 'ray', 'electric'].includes(f.shape) ? 3 : 1;
+    const kind = Motion.kindFor(f.shape);
     const base = trait === 'normal' ? null : appearance(source, f);
     const look = trait === 'glow' ? glowAppearance(base, f, catchRecord) : base;
     const body = trait === 'alternate' ? alternateSource(source, look) : trait === 'glow' ? luminousSource(source, look) : trait === 'prism' ? foilSource(source, look) : source;
@@ -404,7 +464,7 @@
     }
     if (trait === 'prism') foilReflection(canvas, c, source, look, x, y, dw, dh, t, kind, f.id);
   }
-  function scene(canvas, t, catching = false, record = null, elapsed = null) {
+  function scene(canvas, t, catching = false, record = null, elapsed = null, paused = false) {
     const w = 640, h = 372; if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h }
     const c = canvas.getContext('2d'); c.clearRect(0, 0, w, h); if (!boat.complete || !boat.naturalWidth) return;
     c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
@@ -414,10 +474,12 @@
     // Catch time remains independent of the idle clock, including a paused trial catch.
     const age = Math.max(0, elapsed ?? t - state.start);
     const tug = catching ? (age < .2 ? -Math.sin(age / .2 * Math.PI) * .55 : Math.exp(-(age - .2) * 3) * Math.sin(Math.min(1, (age - .2) / .16) * Math.PI / 2)) : 0;
+    const resting = paused && !catching && restingSprite;
+    const sprite = resting || boat;
     c.save(); c.translate(w / 2, h / 2 + Math.sin(t * 1.2) * 2 - tug * 2); c.rotate(Math.sin(t * .7) * .006);
-    const scale = Math.min(w / boat.width, h / boat.height); Motion.draw(c, boat, -boat.width * scale / 2, -boat.height * scale / 2, boat.width * scale, boat.height * scale, t, 0, tug); c.restore();
+    const scale = Math.min(w / sprite.width, h / sprite.height); Motion.draw(c, sprite, -sprite.width * scale / 2, -sprite.height * scale / 2, sprite.width * scale, sprite.height * scale, t, resting ? -1 : 0, tug); c.restore();
     const bw = boat.width * scale, bh = boat.height * scale;
-    const bobX = (w - bw) / 2 + bw * .885, bobY = (h - bh) / 2 + bh * .665;
+    const bobX = (w - bw) / 2 + bw * (resting ? .815 : .885), bobY = (h - bh) / 2 + bh * (resting ? .65 : .665);
     // Additional expanding ripples respond to the deformed line and water.
     c.strokeStyle = catching ? '#fff5beaa' : '#e5ffff66'; c.lineWidth = 1.3;
     for (let i = 0; i < 3; i++) { const phase = (t * .35 + i / 3) % 1; c.globalAlpha = (1 - phase) * .55; c.beginPath(); c.ellipse(bobX, bobY, 8 + phase * (catching ? 42 : 22), 2 + phase * 6, 0, 0, Math.PI * 2); c.stroke() }

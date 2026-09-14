@@ -19,11 +19,24 @@
         <span class="brand-icon">≈</span>
         <h2>小憩海湾<small>THANK YOU FOR THE FISH</small></h2>
       </div>
-      <nav>
+      <!-- <nav>
         <button class="active" data-page="basket">
           ▧ <span>我的鱼篓</span><b id="total-nav">0</b></button
-        ><button data-page="atlas">◈ <span>海洋图鉴</span><b>100</b></button
+        ><button data-page="atlas">◈ <span>海洋图鉴</span><b>160</b></button
         ><button data-page="settings">☷ <span>垂钓设置</span></button>
+      </nav> -->
+      <nav>
+        <button class="active" data-page="basket">
+          ▧ <span>我的鱼篓</span><b id="total-nav">0</b>
+        </button>
+      
+        <button data-page="atlas">
+          ◈ <span>海洋图鉴</span><b id="atlas-nav">0</b>
+        </button>
+      
+        <button data-page="settings">
+          ☷ <span>垂钓设置</span>
+        </button>
       </nav>
       <div class="sidebar-bottom">
         <span class="live-dot"></span>
@@ -62,7 +75,7 @@
         </div>
         <div>
           <span>发现物种</span
-          ><strong id="species">0 <small>/ 100</small></strong>
+          ><strong id="species">0 <small>/ 160</small></strong>
         </div>
         <div>
           <span>特别的相遇</span
@@ -89,10 +102,11 @@
           ><button data-filter="alternate">异色</button
           ><button data-filter="glow">荧光</button
           ><button data-filter="prism">炫彩</button
+          ><button data-filter="legendary">传说</button
           ><input
             id="search"
-            placeholder="搜索鱼的名字…"
-            aria-label="搜索鱼的名字"
+            placeholder="搜索生物名字…"
+            aria-label="搜索生物名字"
           />
         </div>
         <div id="grid"></div>
@@ -115,6 +129,15 @@
               min="1"
               max="120"
               required /></label
+          ><label class="rest-setting"
+            >钓多少条鱼后自动休息<input
+              id="restAfter"
+              type="number"
+              min="1"
+              step="1"
+              aria-describedby="rest-help"
+              required />
+            <small id="rest-help">默认 10 条。休息后点击小船上的「▶」继续，重新计数；试钓不计入。</small></label
           ><label class="check"
             ><input id="top" type="checkbox" />
             小船始终显示在其他窗口上方</label
@@ -160,6 +183,7 @@
       </div>
     </dialog>
     <div id="notice" hidden role="status"></div>
+    <script src="marine-expansion.js"></script>
     <script src="fish-designs.js"></script>
     <script src="catalog.js"></script>
     <script src="art.js"></script>

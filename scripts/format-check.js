@@ -33,14 +33,15 @@ app.whenReady().then(async()=>{
   finishFirst({response:1});
   assert.equal((await formatting).cancelled,false);assert.equal(calls,3);
   const disk=JSON.parse(fs.readFileSync(file));
-  assert.deepEqual(disk.catches,[]);assert.equal(disk.unread,0);assert.deepEqual(disk.settings,settings);
+  assert.deepEqual(disk.catches,[]);assert.equal(disk.unread,0);assert.deepEqual(disk.settings,initial.settings);
+  assert.equal(disk.sessionCatches,0);assert.equal(disk.restReason,null);
   assert.equal(disk.widgetScale,initial.widgetScale);assert.deepEqual(disk.position,initial.position);
   assert.ok(disk.started>=initial.started);assert.ok(disk.next>disk.started);
   await sleep(100);
   assert.equal((await widget.webContents.executeJavaScript('desktop.state()')).catches.length,0);
   assert.equal(await win.webContents.executeJavaScript("document.querySelector('#total-nav').textContent"),'0');
   await win.webContents.executeJavaScript("document.querySelector('[data-page=atlas]').click()");
-  assert.equal(await win.webContents.executeJavaScript("document.querySelectorAll('.undiscovered').length"),100);
+  assert.equal(await win.webContents.executeJavaScript("document.querySelectorAll('.undiscovered').length"),160);
   console.log('PASS: cancellation at all 3 steps, safe defaults, duplicate guard, reset persistence, preserved settings/layout, synchronized UI and atlas.');
   app.exit(0);
  }catch(error){console.error(error);app.exit(1)}

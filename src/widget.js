@@ -8,14 +8,19 @@ let lastPaint=0;
 function frame(now){
  if(now-lastPaint<1000/30){requestAnimationFrame(frame);return}lastPaint=now;
  const dt=Math.min(.1,(now-previous)/1000);previous=now;
- if(state&&!state.settings.paused)seconds+=dt;
+ if(state)seconds+=dt;
  const caught=now<until;
- Art.scene($('#scene'),seconds,caught,last,(now-strikeAt)/1000);
+ Art.scene($('#scene'),seconds,caught,last,(now-strikeAt)/1000,!!state?.settings.paused);
  if(caught&&now-strikeAt>Art.catchRevealDelay&&!shown){shown=true;$('#toast').hidden=false;$('#toast span').textContent=`${Sea.traits.find(t=>t.id===last.trait).name} · ${Sea.fish[last.species].name}  ${Sea.catchWeight(last)} g`;}
  if(caught&&shown)Art.fish($('#toast canvas'),Sea.fish[last.species],last.trait,seconds,last);
  if(!caught){$('#toast').hidden=true;$('#bite').classList.remove('struck')}
  if(state){
   const paused=state.settings.paused;
+  const resting=paused&&!caught;
+  $('#rest-message').hidden=!resting;
+  $('#rest-message').textContent=state.restReason==='limit'?'现在钓得够多啦，休息一下吧':'休息一下，看看天空吧';
+  $('#pause').title=paused?'继续垂钓':'暂停垂钓';
+  $('#pause').setAttribute('aria-label',paused?'继续垂钓':'暂停垂钓');
   $('#unread').textContent=state.unread;$('#pause').textContent=paused?'▶':'Ⅱ';
   $('#bite').classList.toggle('paused',paused);$('#bite-label').textContent=paused?'休息中':'咬钩！';$('#bite').setAttribute('aria-label',paused?'垂钓已暂停':caught?'咬钩了！':'鱼讯摇摆中，等待咬钩');
   const start=state.started||state.next-state.settings.max*60000;

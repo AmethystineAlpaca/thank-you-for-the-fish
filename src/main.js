@@ -2,6 +2,7 @@ const {app,BrowserWindow,ipcMain,Menu,Tray,nativeImage,screen,dialog}=require('e
 const fs=require('fs');
 const path=require('path');
 const Sea=require('./catalog');
+const FishingSession=require('./fishing-session');
 const {sizeForScale,scaleForDrag}=require('./window-size');
 app.setName('Thank You for the Fish');
 let widget,collection,tray,state,file,resizeSession=null,formatting=false;
@@ -9,7 +10,7 @@ function save(){const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(state)
 function broadcast(){for(const w of [widget,collection])if(w&&!w.isDestroyed())w.webContents.send('state',state)}
 function announceCatch(c){for(const w of [widget,collection])if(w&&!w.isDestroyed())w.webContents.send('caught',c)}
 function schedule(){state.started=Date.now();state.next=state.started+Sea.delay(state.settings.min,state.settings.max)}
-function catchOne(){const c=Sea.catchFish();state.catches.push(c);state.unread++;schedule();save();broadcast();announceCatch(c);return c}
+function catchOne(){const c=Sea.catchFish();state.catches.push(c);state.unread++;FishingSession.recordCatch(state);schedule();save();broadcast();announceCatch(c);return c}
 function showCollection(page='basket'){
   if(page==='basket'){state.unread=0;save();broadcast()}
   if(collection&&!collection.isDestroyed()){
@@ -52,6 +53,7 @@ if(!app.requestSingleInstanceLock())app.quit();else{
     try{state=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(state.catches)||!state.settings)throw Error('Invalid save')}
     catch(e){if(fs.existsSync(file))fs.copyFileSync(file,file+'.backup-'+Date.now());state={catches:[],unread:0,language:'zh-CN',settings:{min:5,max:20,top:true,paused:false},next:0}}
     if(!state.language)state.language='zh-CN';
+    FishingSession.restoreSession(state);
     schedule();
     const size=sizeForScale(state.widgetScale||1);state.widgetScale=size.scale;save();
     const area=screen.getPrimaryDisplay().workArea;const pos=state.position;
@@ -73,7 +75,7 @@ ipcMain.handle('read',()=>{state.unread=0;save();broadcast()});
 ipcMain.handle('settings',(_,s)=>{
   if(!s||!Number.isFinite(s.min)||!Number.isFinite(s.max)||s.min<1||s.max>120||s.max<s.min)throw Error('时间范围须为 1–120 分钟，最大值不能小于最小值');
   const changed=s.min!==state.settings.min||s.max!==state.settings.max||state.settings.paused&&!s.paused;
-  state.settings={min:s.min,max:s.max,paused:!!s.paused,top:!!s.top};if(s.language==='en'||s.language==='zh-CN')state.language=s.language;
+  FishingSession.updateSettings(state,s);if(s.language==='en'||s.language==='zh-CN')state.language=s.language;
   if(changed)schedule();widget.setAlwaysOnTop(state.settings.top);save();broadcast();return state;
 });
 ipcMain.handle('format',async(event)=>{
@@ -93,7 +95,7 @@ ipcMain.handle('format',async(event)=>{
       if(response!==1||owner.isDestroyed())return {cancelled:true};
     }
     const previous=state;
-    state={...state,catches:[],unread:0};schedule();
+    state={...state,catches:[],unread:0,sessionCatches:0,restReason:null};schedule();
     try{save()}catch(error){state=previous;throw error}
     broadcast();
     for(const w of [widget,collection])if(w&&!w.isDestroyed())w.webContents.send('formatted');

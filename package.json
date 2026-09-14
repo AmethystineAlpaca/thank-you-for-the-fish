@@ -1,7 +1,7 @@
 {
   "name": "thank-you-for-the-fish",
   "version": "0.4.3",
-  "description": "Thank You for the Fish · A cozy idle fishing companion for your Mac desktop. 100 sea creatures, 400 collectible appearances.",
+  "description": "Thank You for the Fish · A cozy idle fishing companion for your Mac desktop. 160 sea creatures including 10 legends, 640 collectible appearances.",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",

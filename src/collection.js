@@ -1,8 +1,13 @@
 const $ = (s) => document.querySelector(s);
+// let state,
+//   page =
+//     new URLSearchParams(location.search).get("page") === "settings"
+//       ? "settings"
+//       : "basket",
+const initialPage = new URLSearchParams(location.search).get("page");
 let state,
-  page =
-    new URLSearchParams(location.search).get("page") === "settings"
-      ? "settings"
+  page = ["basket", "atlas", "settings"].includes(initialPage)
+      ? initialPage
       : "basket",
   filter = "all",
   selected = null,
@@ -38,8 +43,10 @@ function render() {
   animatedCards.clear();
   $("#total").innerHTML = `${state.catches.length} <small>条</small>`;
   $("#total-nav").textContent = state.catches.length;
+  // $('[data-page="atlas"] b').textContent = Sea.fish.length;
+  $("#atlas-nav").textContent = Sea.fish.length;
   $("#species").innerHTML =
-    `${new Set(state.catches.map((c) => c.species)).size} <small>/ 100</small>`;
+    `${new Set(state.catches.map((c) => c.species)).size} <small>/ ${Sea.fish.length}</small>`;
   $("#special").innerHTML =
     `${state.catches.filter((c) => c.trait !== "normal").length} <small>条</small>`;
   $("#value").innerHTML =
@@ -53,13 +60,13 @@ function render() {
   $("#settings-panel").hidden = page !== "settings";
   $("#page-title").textContent =
     page === "atlas"
-      ? "一百种相遇，慢慢收集。"
+      ? `${Sea.fish.length} 种相遇，慢慢收集。`
       : page === "settings"
         ? "给自己，留一点闲暇。"
         : "今天，也有新的收获。";
   $("#grid-title").innerHTML =
     page === "atlas"
-      ? "海洋图鉴 <span>FIELD GUIDE · 100</span>"
+      ? `海洋图鉴 <span>FIELD GUIDE · ${Sea.fish.length}</span>`
       : "我的鱼篓 <span>COLLECTION</span>";
   $("#sort").hidden = page === "atlas";
   let items =
@@ -68,13 +75,13 @@ function render() {
           (f) =>
             state.catches.find(
               (c) =>
-                c.species === f.id && (filter === "all" || c.trait === filter),
+                c.species === f.id && (filter === "all" || filter === "legendary" || c.trait === filter),
             ) || { species: f.id, trait: "normal", undiscovered: true },
         )
       : [...state.catches];
   items = items.filter(
     (c) =>
-      (filter === "all" || (!c.undiscovered && c.trait === filter)) &&
+      (filter === "all" || (filter === "legendary" ? Sea.fish[c.species].legendary : (!c.undiscovered && c.trait === filter))) &&
       (c.undiscovered ? "???" : Sea.fish[c.species].name).includes(
         $("#search").value.trim(),
       ),
@@ -102,8 +109,9 @@ function render() {
       t = Sea.traits.find((t) => t.id === item.trait);
     const card = document.createElement("button");
     card.className = "fish-card" + (item.undiscovered ? " undiscovered" : "");
+    if (f.legendary && !item.undiscovered) card.dataset.rarity = "legendary";
     card.dataset.trait = item.undiscovered ? "locked" : item.trait;
-    card.innerHTML = `<div class="fish-stage"><span class="trait">${item.undiscovered ? "尚未发现" : t.name + " · " + "✦".repeat(f.rarity)}</span><canvas width="256" height="160"></canvas></div><div class="fish-caption"><h3>${item.undiscovered ? "???" : f.name}</h3><div class="meta"><span>${item.undiscovered ? "???" : Sea.catchWeight(item) + " g"}</span><span class="price">${item.undiscovered ? "—" : item.value.toLocaleString() + " ◇"}</span></div></div>`;
+    card.innerHTML = `<div class="fish-stage"><span class="trait">${item.undiscovered ? "尚未发现" : (f.legendary ? "传说 · " : "") + t.name + " · " + "✦".repeat(f.rarity)}</span><canvas width="256" height="160"></canvas></div><div class="fish-caption"><h3>${item.undiscovered ? "???" : f.name}</h3><div class="meta"><span>${item.undiscovered ? "???" : Sea.catchWeight(item) + " g"}</span><span class="price">${item.undiscovered ? "—" : item.value.toLocaleString() + " ◇"}</span></div></div>`;
     Art.fish(
       card.querySelector("canvas"),
       f,
@@ -122,7 +130,7 @@ function detail(c) {
     t = Sea.traits.find((t) => t.id === c.trait);
   $("#detail-tag").textContent = c.undiscovered
     ? "尚未发现 / ???"
-    : `${f.habitat} / ${"✦".repeat(f.rarity)} / ${t.name}`;
+    : `${f.habitat}${f.legendary ? " · 传说级" : ""} / ${"✦".repeat(f.rarity)} / ${t.name}`;
   $("#detail-name").textContent = c.undiscovered ? "???" : f.name;
   $("#description").textContent = c.undiscovered
     ? "海里还有一个秘密，等你亲手钓起。"
@@ -150,7 +158,7 @@ function navigate(target) {
     .forEach((x) => x.classList.toggle("active", x.dataset.page === page));
   if (page === "basket") desktop.read();
   if (page === "settings") {
-    for (const k of ["min", "max"]) $("#" + k).value = state.settings[k];
+    for (const k of ["min", "max", "restAfter"]) $("#" + k).value = state.settings[k];
     for (const k of ["top", "paused"]) $("#" + k).checked = state.settings[k];
   }
   render();
@@ -188,13 +196,14 @@ $("#settings-form").onsubmit = async (e) => {
     state = await desktop.settings({
       min: Number($("#min").value),
       max: Number($("#max").value),
+      restAfter: Number($("#restAfter").value),
       top: $("#top").checked,
       paused: $("#paused").checked,
     });
     $("#saved").textContent = "已保存，小船收到啦。";
     render();
   } catch (e) {
-    $("#saved").textContent = "请输入有效范围：1–120 分钟，最短不超过最长。";
+    $("#saved").textContent = "间隔须为 1–120 分钟，最短不超过最长；自动休息条数须为正整数。";
   }
 };
 Promise.all([desktop.state(), Art.ready]).then(([s]) => {
@@ -202,6 +211,7 @@ Promise.all([desktop.state(), Art.ready]).then(([s]) => {
   navigate(page);
 });
 desktop.onState((s) => {
+  if (state && state.settings.paused !== s.settings.paused) $("#paused").checked = s.settings.paused;
   state = s;
   render();
 });
@@ -233,6 +243,7 @@ function animateCollection(now) {
       !!sceneCatch && now - sceneStrikeAt < 6500,
       sceneCatch,
       (now - sceneStrikeAt) / 1000,
+      !!state?.settings.paused,
     );
     if ($("#detail").open && selected)
       Art.fish(
