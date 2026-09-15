@@ -40,20 +40,42 @@ app.whenReady().then(async () => {
         ['isopod',[30,30,600,170],[100,330,550,380]],
         ['garden',[30,350,600,380],[100,40,550,120]],
         ['octopus',[30,30,600,130],[100,300,550,370]],
+        ['shrimp',[160,180,440,225],[100,330,550,380]],
+        ['crab',[220,100,420,220],[100,345,550,380]],
+        ['hermit',[220,100,420,220],[100,345,550,380]],
+        ['turtle',[180,90,450,220],[100,340,550,380]],
+        ['seal',[220,100,420,230],[100,355,550,390]],
+        ...['bivalve','snail','barnacle','urchin','star','horseshoe'].map(shape=>[shape,[0,0,640,400],null]),
       ]){
         Motion.draw(c,source,0,0,640,400,0,Motion.kindFor(shape));const a=pixels();
         c.clearRect(0,0,640,400);
         Motion.draw(c,source,0,0,640,400,.57,Motion.kindFor(shape));const b=pixels();
-        const still=change(a,b,rigid),active=change(a,b,moving);
-        if(still>.05||active<.3)throw Error(shape+' anatomy violated: '+JSON.stringify({still,active}));
+        const still=change(a,b,rigid),active=moving?change(a,b,moving):0;
+        if(still>.05||(moving&&active<.3))throw Error(shape+' anatomy violated: '+JSON.stringify({still,active}));
         checks.push({shape,rigidChange:still,movingChange:active});
         c.clearRect(0,0,640,400);
       }
+      // Verify a complete jelly cycle, bell contraction and delayed tentacle motion.
+      const period=Math.PI*2/2.2;
+      if(Math.abs(Motion.floatOffset('jelly',0)-Motion.floatOffset('jelly',period))>1e-8 ||
+         Motion.floatOffset('jelly',0)-Motion.floatOffset('jelly',period/2)<.05)
+        throw Error('Jelly does not complete an up/down pulse');
+      Motion.draw(c,source,0,0,640,400,0,Motion.kindFor('jelly'));const jellyA=pixels();
+      c.clearRect(0,0,640,400);
+      Motion.draw(c,source,0,0,640,400,.57,Motion.kindFor('jelly'));const jellyB=pixels();
+      for(const roi of [[120,60,520,155],[150,290,500,370]])
+        if(change(jellyA,jellyB,roi)<.3)throw Error('Jelly bell or tentacles are frozen');
+      for(const id of [119,120,121,122,123,124,125,126,127,128,129,136,137,138]){
+        const tile=canvas(384,240);
+        Art.fish(tile,Sea.fish[id],'normal',0);const first=tile.toDataURL();
+        Art.fish(tile,Sea.fish[id],'normal',.57);
+        if(tile.toDataURL()!==first)throw Error('Rigid animal moved: '+id);
+      }
       if(Motion.backend!=='webgl')return {backend:Motion.backend,checks};
-      const ids=[90,42,41,40,91,52,47,48,75];
-      const board=canvas(960,690),b=board.getContext('2d'),tile=canvas(320,190);
+      const ids=[100,103,118,120,126,128,130,131,132,110,148,156];
+      const board=canvas(960,920),b=board.getContext('2d'),tile=canvas(320,190);
       function draw(t){
-        b.fillStyle='#edf5ef';b.fillRect(0,0,960,690);
+        b.fillStyle='#edf5ef';b.fillRect(0,0,960,920);
         ids.forEach((id,i)=>{
           const x=i%3*320,y=Math.floor(i/3)*230;
           Art.fish(tile,Sea.fish[id],'normal',t);b.drawImage(tile,x,y);

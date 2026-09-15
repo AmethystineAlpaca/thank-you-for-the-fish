@@ -4,19 +4,26 @@ const surface=document.createElement('canvas');surface.width=640;surface.height=
 const gl=surface.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false,preserveDrawingBuffer:true});
 const textures=new WeakMap();
 // These groups follow the anatomy and orientation of the finished sprites.
-const kinds={fish:1,arms:2,ray:3,shell:4,armor:5,squid:6,cuttle:7,horse:8,garden:9,eel:10,hover:11,flat:12};
+const kinds={fish:1,arms:2,ray:3,shell:4,armor:5,squid:6,cuttle:7,horse:8,garden:9,eel:10,hover:11,flat:12,rigid:13,jelly:14,shrimp:15,crab:16,turtle:17,seal:18};
 const forms={
  octopus:'arms',vampire:'arms',dumbo:'arms',blanket:'arms',
  manta:'ray',ray:'ray',electric:'ray',nautilus:'shell',isopod:'armor',
  squid:'squid',cuttle:'cuttle',horse:'horse',dragon:'horse',leafy:'horse',garden:'garden',
  eel:'eel',gulper:'eel',ribbon:'eel',catfish:'eel',
  puffer:'hover',box:'hover',sunfish:'hover',frog:'hover',angler:'hover',blob:'hover',
- shrimp:'armor',lobster:'armor',crab:'armor',hermit:'armor',horseshoe:'armor',
- barnacle:'hover',bivalve:'hover',snail:'hover',urchin:'hover',star:'flat',cucumber:'flat',
- jelly:'arms',slug:'flat',turtle:'ray',seal:'hover',dugong:'fish',dolphin:'fish',whale:'fish',phoenix:'ray',
+ shrimp:'shrimp',lobster:'shrimp',crab:'crab',hermit:'crab',horseshoe:'rigid',
+ barnacle:'rigid',bivalve:'rigid',snail:'rigid',urchin:'rigid',star:'rigid',cucumber:'flat',
+ jelly:'jelly',slug:'flat',turtle:'turtle',seal:'seal',dugong:'fish',dolphin:'fish',whale:'fish',phoenix:'ray',
  flat:'flat',sole:'flat'
 };
 function kindFor(shape){return kinds[forms[shape]||'fish']}
+function floatOffset(shape,t){
+ const kind=kindFor(shape);
+ if([13,16,17,18].includes(kind))return 0;
+ // One bell stroke lifts the jelly, followed by a slower-looking settling drift.
+ if(kind===14)return .028*Math.cos(t*2.2)+.004*Math.cos(t*4.4);
+ return .008*Math.sin(t*1.7);
+}
 const vertex=`attribute vec2 position;varying vec2 uv;void main(){uv=vec2((position.x+1.0)*.5,(1.0-position.y)*.5);gl_Position=vec4(position,0.,1.);}`;
 const fragment=`precision highp float;
 uniform sampler2D image;uniform float time,kind,tug;varying vec2 uv;
@@ -134,11 +141,41 @@ void main(){vec2 p=uv;float t=time;
   p.y-=fins*.008*sin(t*5.2-uv.x*9.);
   float pectoral=band(uv.x,.54,.68,.025)*band(uv.y,.53,.69,.025);
   p.x-=pectoral*.004*sin(t*7.);
- }else{
+ }else if(kind<12.5){
   // Flatfish: low ripples along the dorsal/anal fringe, a calm central body.
   float edge=band(uv.x,.18,.78,.05)*(1.-band(uv.y,.35,.64,.05));
   p.y-=edge*.010*sin(t*3.1+uv.x*15.);
   p.y-=(1.-smoothstep(.17,.32,uv.x))*.009*sin(t*2.8+uv.x*5.);
+ }else if(kind<13.5){
+  // Closed shells, spines and plates have no fish-tail deformation.
+ }else if(kind<14.5){
+  // The bell contracts as it rises; trailing tentacles follow with a phase lag.
+  float stroke=sin(t*2.2);
+  float bell=1.-smoothstep(.43,.60,uv.y);
+  p.x+=(uv.x-.5)*bell*.07*stroke;
+  p.y-=(uv.y-.46)*bell*.035*stroke;
+  float arms=smoothstep(.48,.90,uv.y);
+  p.x-=arms*.014*sin(t*2.2-uv.y*5.+uv.x*4.);
+  p.y-=arms*.008*sin(t*2.2-uv.y*4.-.8);
+ }else if(kind<15.5){
+  // Shrimp/lobster carapace remains firm; long feelers and swimming legs move.
+  float antenna=(1.-smoothstep(.29,.44,uv.y))*smoothstep(.24,.55,uv.x);
+  p.y-=antenna*.009*sin(t*1.8-uv.x*5.);
+  float legs=smoothstep(.60,.80,uv.y);
+  p.x-=legs*.008*sin(t*3.4-uv.x*20.);
+ }else if(kind<16.5){
+  // Lower leg tips step gently; the central shell and upper claws stay still.
+  float legs=smoothstep(.64,.84,uv.y);
+  p.x-=legs*.006*sin(t*2.1-uv.x*18.);
+  p.y-=legs*.004*sin(t*2.1-uv.x*18.+1.);
+ }else if(kind<17.5){
+  // A turtle's rigid carapace is above its paddling flippers.
+  float flipper=smoothstep(.59,.79,uv.y);
+  p.y-=flipper*.016*sin(t*1.9-uv.x*5.);
+  p.x-=flipper*.006*sin(t*1.9-uv.x*5.-.7);
+ }else{
+  float flipper=smoothstep(.67,.86,uv.y);
+  p.x-=flipper*.006*sin(t*1.7-uv.x*7.);
  }
  if(p.x<0.||p.x>1.||p.y<0.||p.y>1.){gl_FragColor=vec4(0.);return;}
  gl_FragColor=texture2D(image,p);
@@ -153,6 +190,8 @@ if(gl){
  loc=Object.fromEntries(['image','time','kind','tug'].map(k=>[k,gl.getUniformLocation(program,k)]));gl.uniform1i(loc.image,0);
 }
 function draw(c,source,x,y,w,h,t,kind=1,tug=0){
+ // Rigid animals also bypass strip resampling in the software backend.
+ if(kind===kinds.rigid){c.drawImage(source,x,y,w,h);return;}
  if(!gl||gl.isContextLost()){
   // Software fallback still bends local strips, rather than bobbing one rigid image.
   const count=64;
@@ -161,14 +200,20 @@ function draw(c,source,x,y,w,h,t,kind=1,tug=0){
   for(let i=0;i<count;i++){
    const q=i/count;
    if(kind<=0){const sy=q*source.height,sh=source.height/count;const water=Math.max(0,(q-.66)/.34);c.drawImage(source,0,sy,source.width,sh,x+Math.sin(q*60-t*2)*w*.01*water,y+q*h,w,h/count+.4)}
-   else if(kind===2){
+   else if(kind===14){
+    const bell=1-smooth(.43,.60,q),stroke=Math.sin(t*2.2),arms=smooth(.48,.90,q);
+    const width=w/(1+bell*.07*stroke);
+    const dx=arms*.014*Math.sin(t*2.2-q*5.+2.);
+    const dy=(q-.46)*bell*.035*stroke+arms*.008*Math.sin(t*2.2-q*4.-.8);
+    c.drawImage(source,0,q*source.height,source.width,source.height/count,x+(w-width)/2+dx*w,y+(q+dy)*h,width,h/count+.4);
+   }else if(kind===2){
     const arms=smooth(.4,.89,q),p=t*3.5+.12*Math.sin(t*.7);
     const dx=arms*(.040*Math.sin(p-q*8.+3.5)+arms*.007*Math.sin(p*1.7-q*14.+5.5));
     c.drawImage(source,0,q*source.height,source.width,source.height/count,x+dx*w,y+q*h,w,h/count+.4);
    }else if(kind>=4){
     // A cheaper anatomy-aware approximation when WebGL is unavailable.
     // Shells/armor never fall back to the generic fish's full-body bend.
-    let dx=0,dy=0;const horizontal=[5,8,9].includes(kind);
+    let dx=0,dy=0;const horizontal=[5,8,9,15,16,17,18].includes(kind);
     if(kind===4){const arms=smooth(.68,.86,q);dy=arms*.014*Math.sin(t*2.1-q*9.);}
     else if(kind===5){const legs=smooth(.60,.78,q);dx=legs*.007*Math.sin(t*3.2-q*17.);}
     else if(kind===6){const arms=smooth(.6,.86,q);dy=arms*.022*Math.sin(t*2.7-q*8.);}
@@ -177,8 +222,12 @@ function draw(c,source,x,y,w,h,t,kind=1,tug=0){
     else if(kind===9){const height=1-smooth(.17,.86,q);dx=height*height*.022*Math.sin(t*1.4-q*2.);}
     else if(kind===10){dy=(1-smooth(.51,.82,q))*.023*Math.sin(t*2.7+q*8.-2.);}
     else if(kind===11){dy=(1-smooth(.22,.38,q))*.012*Math.sin(t*3.4+q*5.);}
+    else if(kind===15){dx=smooth(.60,.80,q)*.008*Math.sin(t*3.4-q*20.);}
+    else if(kind===16){dx=smooth(.64,.84,q)*.006*Math.sin(t*2.1-q*18.);}
+    else if(kind===17){dy=smooth(.59,.79,q)*.016*Math.sin(t*1.9-q*5.);}
+    else if(kind===18){dx=smooth(.67,.86,q)*.006*Math.sin(t*1.7-q*7.);}
     else{dy=(1-smooth(.17,.32,q))*.009*Math.sin(t*2.8+q*5.);}
-    if(horizontal)c.drawImage(source,0,q*source.height,source.width,source.height/count,x+dx*w,y+q*h,w,h/count+.4);
+    if(horizontal)c.drawImage(source,0,q*source.height,source.width,source.height/count,x+dx*w,y+(q+dy)*h,w,h/count+.4);
     else c.drawImage(source,q*source.width,0,source.width/count,source.height,x+q*w,y+dy*h,w/count+.4,h);
    }else{
     let dy;
@@ -194,5 +243,5 @@ function draw(c,source,x,y,w,h,t,kind=1,tug=0){
  gl.uniform1f(loc.time,t%10000);gl.uniform1f(loc.kind,kind);gl.uniform1f(loc.tug,tug);gl.viewport(0,0,640,400);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
  c.drawImage(surface,x,y,w,h);
 }
-window.Motion={draw,kindFor,kinds,backend:gl?'webgl':'canvas-strips'};
+window.Motion={draw,kindFor,kinds,floatOffset,backend:gl?'webgl':'canvas-strips'};
 })();

@@ -7,13 +7,14 @@ app.whenReady().then(async()=>{
   await win.loadFile(path.join(__dirname,'../src/index.html'));
   const result=await win.webContents.executeJavaScript(`(async()=>{
    await Art.ready;
+   const dark=${process.argv.includes('--dark')};
    if(Art.upgradedSpecies!==Sea.fish.length)throw Error('Incomplete art migration');
    const canvas=(w=384,h=240)=>Object.assign(document.createElement('canvas'),{width:w,height:h});
    const signatures=new Set(),sheets=[];
    for(let group=0;group<Math.ceil(Sea.fish.length/20);group++){
     const board=canvas(1200,1100),b=board.getContext('2d');
-    b.fillStyle='#eaf5f0';b.fillRect(0,0,1200,1100);
-    b.fillStyle='#275950';b.font='bold 25px sans-serif';
+    b.fillStyle=dark?'#10222c':'#eaf5f0';b.fillRect(0,0,1200,1100);
+    b.fillStyle=dark?'#d5ede5':'#275950';b.font='bold 25px sans-serif';
     b.fillText('小憩海湾 · '+Sea.fish[group*20].habitat+' · 新版美术',30,40);
     for(let slot=0;slot<20;slot++){
      const f=Sea.fish[group*20+slot],c=canvas();
@@ -33,9 +34,9 @@ app.whenReady().then(async()=>{
       }
      }
      const x=slot%4*300,y=65+Math.floor(slot/4)*205;
-     b.fillStyle=slot%2?'#fffdf6':'#cce6df';b.fillRect(x+10,y,280,190);
+     b.fillStyle=dark?(slot%2?'#163e45':'#081421'):(slot%2?'#fffdf6':'#cce6df');b.fillRect(x+10,y,280,190);
      Art.fish(c,f,'normal',0);b.drawImage(c,x,y-4,300,187.5);
-     b.font='16px sans-serif';b.fillStyle='#275950';b.fillText(String(f.id+1).padStart(3,'0')+'  '+f.name,x+22,y+174);
+     b.font='16px sans-serif';b.fillStyle=dark?'#d5ede5':'#275950';b.fillText(String(f.id+1).padStart(3,'0')+'  '+f.name,x+22,y+174);
     }
     sheets.push(board.toDataURL());
    }
@@ -43,7 +44,7 @@ app.whenReady().then(async()=>{
    return {species:signatures.size,renders:Sea.fish.length*5,staticSilhouettes:Sea.fish.length,sheets};
   })()`);
   fs.mkdirSync('artifacts',{recursive:true});
-  result.sheets.forEach((data,i)=>fs.writeFileSync('artifacts/soft-fish-'+i+'.png',Buffer.from(data.split(',')[1],'base64')));
+  result.sheets.forEach((data,i)=>fs.writeFileSync('artifacts/soft-fish-'+i+(process.argv.includes('--dark')?'-dark':'')+'.png',Buffer.from(data.split(',')[1],'base64')));
   delete result.sheets;console.log('PASS',result);app.exit(0);
  }catch(error){console.error(error);app.exit(1)}
 });

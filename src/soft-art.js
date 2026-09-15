@@ -18,11 +18,15 @@
       file: 'fish-4-white.png', cuts: [0, 255, 493, 725, 977, 1254].map(y => y / 1254), whiteBackground: true,
       regions: { 13: [313.5, 725, 627, 961], 14: [627, 725, 940, 990], 17: [313.5, 961, 627, 1254], 18: [627, 990, 940, 1254] }
     }
-    , { file: 'fish-5-white.png', cuts: [0, 274, 538, 771, 984, 1278].map(y => y / 1278), whiteBackground: true },
-    { file: 'fish-6-white.png', cuts: [0, 245, 481, 736, 983, 1254].map(y => y / 1254), whiteBackground: true,
-      regions: { 11: [940.5, 465, 1254, 772], 15: [940.5, 736, 1254, 983] } },
-    { file: 'fish-7-white.png', cuts: [0, 251, 495, 707, 953, 1254].map(y => y / 1254), whiteBackground: true,
-      regions: { 2: [627, 0, 966, 251], 3: [960, 0, 1254, 251], 4: [0, 251, 376, 495], 5: [313.5, 285, 627, 495], 7: [940.5, 251, 1254, 465], 11: [940.5, 458, 1254, 728], 12: [0, 700, 313.5, 953], 15: [916, 707, 1254, 953], 17: [313.5, 935, 627, 1254] } }
+    , { file: 'fish-5-alpha.png', cuts: [0, 274, 538, 755, 960, 1254].map(y => y / 1254) },
+    { file: 'fish-6-alpha.png', cuts: [0, 250, 478, 736, 983, 1254].map(y => y / 1254),
+      regions: { 7: [940.5, 250, 1254, 468], 11: [940.5, 465, 1254, 766],
+        12: [0, 728, 313.5, 972], 15: [940.5, 754, 1254, 983] } },
+    { file: 'fish-7-alpha.png', cuts: [0, 265, 490, 728, 974, 1254].map(y => y / 1254),
+      regions: { 0: [0, 0, 324, 265], 1: [324, 0, 627, 265], 2: [627, 0, 943, 265], 3: [943, 0, 1254, 275],
+        4: [0, 265, 377, 490], 5: [326, 290, 627, 490], 7: [940.5, 275, 1254, 480],
+        8: [0, 490, 313.5, 719], 9: [313.5, 490, 633, 728], 11: [940.5, 480, 1254, 752],
+        12: [0, 717, 313.5, 975], 13: [310, 728, 633, 947], 15: [927, 743, 1254, 953], 17: [313.5, 945, 627, 1254] } }
   ].map(atlas => ({ ...atlas, image: new Image() }));
   function load(img, file) { return new Promise((resolve, reject) => { img.onload = resolve; img.onerror = () => reject(Error('Could not load ' + file)); img.src = 'assets/soft-sea/' + file }) }
   // The resting artwork is supplied on black. Key only connected exterior
@@ -403,7 +407,17 @@
         const sh = region ? (region[3] - region[1]) / 1254 * img.height : (cuts[row + 1] - cuts[row]) * img.height;
         const fit = Math.min(source.width / sw, source.height / sh) * .92;
         sc.imageSmoothingEnabled = true; sc.imageSmoothingQuality = 'high';
-        sc.drawImage(img, sx, sy, sw, sh, (source.width - sw * fit) / 2, (source.height - sh * fit) / 2, sw * fit, sh * fit);
+        if (f.id >= 100 && !atlas.whiteBackground) {
+          // Clean at native resolution before downsampling delicate antennae.
+          const tile = document.createElement('canvas');
+          tile.width = Math.ceil(sw); tile.height = Math.ceil(sh);
+          const tc = tile.getContext('2d'); tc.drawImage(img, sx, sy, sw, sh, 0, 0, tile.width, tile.height);
+          const pixels = tc.getImageData(0, 0, tile.width, tile.height);
+          const tipGap = ['shrimp', 'lobster'].includes(f.shape) ? 6 : 0;
+          SpriteAlpha.clean(pixels.data, tile.width, tile.height, tipGap * img.width / 1254);
+          tc.putImageData(pixels, 0, 0);
+          sc.drawImage(tile, (source.width - sw * fit) / 2, (source.height - sh * fit) / 2, sw * fit, sh * fit);
+        } else sc.drawImage(img, sx, sy, sw, sh, (source.width - sw * fit) / 2, (source.height - sh * fit) / 2, sw * fit, sh * fit);
         // White-matte sheets need edge cleanup; transparent sheets retain native alpha.
         if (atlas.whiteBackground) {
           // Remove only white background connected to the tile edge, preserving white markings.
@@ -411,33 +425,13 @@
           function visit(i) { if (i < 0 || i >= seen.length || seen[i]) return; seen[i] = 1; const j = i * 4; if (a[j + 3] === 0 || (a[j] > 238 && a[j + 1] > 238 && a[j + 2] > 238)) { queue.push(i); a[j + 3] = 0 } }
           for (let x = 0; x < 384; x++) { visit(x); visit(239 * 384 + x) } for (let y = 0; y < 240; y++) { visit(y * 384); visit(y * 384 + 383) }
           for (let k = 0; k < queue.length; k++) { const i = queue[k]; if (i % 384) visit(i - 1); if (i % 384 < 383) visit(i + 1); visit(i - 384); visit(i + 384) }
-          if (f.id >= 100) {
-            // Irregular atlas silhouettes sometimes enter a neighboring rectangle.
-            // Keep the connected animal and drop detached fragments of its neighbors.
-            const labels = new Int32Array(384 * 240), pending = new Int32Array(labels.length);
-            let label = 0, largest = 0, largestSize = 0;
-            for (let start = 0; start < labels.length; start++) {
-              if (labels[start] || a[start * 4 + 3] < 8) continue;
-              label++; let head = 0, tail = 1; pending[0] = start; labels[start] = label;
-              while (head < tail) {
-                const i = pending[head++], x = i % 384, y = Math.floor(i / 384);
-                for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-                  const xx = x + dx, yy = y + dy, n = yy * 384 + xx;
-                  if (xx < 0 || xx >= 384 || yy < 0 || yy >= 240 || labels[n] || a[n * 4 + 3] < 8) continue;
-                  labels[n] = label; pending[tail++] = n;
-                }
-              }
-              if (tail > largestSize) { largestSize = tail; largest = label }
-            }
-            for (let i = 0; i < labels.length; i++) if (labels[i] !== largest) a[i * 4 + 3] = 0;
-          }
           sc.putImageData(pixels, 0, 0);
         }
       }
       fishFrames.set(f.id, source);
     }
     const w = canvas.width, h = canvas.height, scale = catchRecord ? Sea.displayScale(catchRecord) : .72;
-    const dw = w * scale, dh = h * scale, x = (w - dw) / 2, y = (h - dh) / 2 + Math.sin(t * 1.7) * h * .008;
+    const dw = w * scale, dh = h * scale, x = (w - dw) / 2, y = (h - dh) / 2 + Motion.floatOffset(f.shape, t) * h;
     if (trait === 'silhouette') {
       // Use the same modern outline, with no color, texture, or animation before discovery.
       c.save(); c.drawImage(source, x, (h - dh) / 2, dw, dh);
