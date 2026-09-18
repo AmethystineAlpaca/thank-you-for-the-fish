@@ -5,7 +5,7 @@ Thanks for taking an interest in Thank You for the Fish! Bug reports, thoughtful
 ## A few useful places to start
 
 - Improve the English and Chinese docs, especially first-run instructions.
-- Help design an English-language interface. The app currently uses Simplified Chinese.
+- Help complete the experimental English interface. Species names and some controls still use Simplified Chinese.
 - Report a creature whose sprite, silhouette, or animation needs attention.
 - Suggest small improvements that keep the app calm and easy to leave running.
 

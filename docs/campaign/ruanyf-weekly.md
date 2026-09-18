@@ -2,7 +2,7 @@
 
 ## 标题
 
-【开源自荐】小憩海湾：在 Mac 桌面角落自动钓鱼，收集 100 种海洋生物
+【开源自荐】小憩海湾：在 Mac 桌面角落自动钓鱼，收集 160 种海洋生物（含 10 种传说）
 
 ## 正文
 
@@ -12,12 +12,12 @@
 
 ![桌面钓鱼实际演示](https://raw.githubusercontent.com/AmethystineAlpaca/thank-you-for-the-fish/main/docs/images/desktop-fishing.gif)
 
-- **100 种海洋生物 × 4 种性状**：普通、异色、荧光、炫彩，逐步点亮收藏图鉴。
+- **160 种海洋生物（含 10 种传说） × 4 种性状**：普通、异色、荧光、炫彩，逐步点亮收藏图鉴。
 - 小船可拖动、缩放、暂停，置顶可以关闭；默认每 5–20 分钟随机咬钩。
 - 无需账号，安装后可离线使用，收藏保存在本机；退出后不会继续累积鱼获。
 - Electron + Canvas + WebGL，MIT 许可。美术由 AI 生成并整理为本地素材，动画和特效由代码实现，运行时不调用图片生成服务。
 
-**下载条件：** 当前公开的 v0.4.3 安装包适用于 Apple Silicon（M 系列）Mac，界面为简体中文；尚未经过 Developer ID 签名与公证，首次打开请参考仓库内的 Apple 官方说明。源码与发布包可能存在版本差异，请以 Release 说明为准。
+**下载条件：** 当前公开的 v0.5.1 安装包适用于 Apple Silicon（M 系列）Mac，界面为简体中文；尚未经过 Developer ID 签名与公证，首次打开请参考仓库内的 Apple 官方说明。源码与发布包可能存在版本差异，请以 Release 说明为准。
 
 [项目源码、完整演示与中文说明](https://github.com/AmethystineAlpaca/thank-you-for-the-fish) · [下载最新发布版](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
 

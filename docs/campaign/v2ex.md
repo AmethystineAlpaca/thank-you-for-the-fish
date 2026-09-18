@@ -16,7 +16,7 @@
 
 想做的是一个不用一直盯着、偶尔看一眼会有点开心的桌面小摆件。
 
-- 100 种海洋生物，可以慢慢点亮图鉴。
+- 160 种海洋生物（含 10 种传说），可以慢慢点亮图鉴。
 - 普通、异色、荧光、炫彩四种性状，同一种鱼也有不同惊喜。
 - 小船能拖动、缩放、暂停，也能关闭置顶。
 - 无需注册，安装后可离线使用，收藏保存在本机。
@@ -26,7 +26,7 @@
 
 先说明一个安装上的限制：目前还没做 Developer ID 签名与公证，第一次打开可能被 macOS 拦下。[README](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/blob/main/README.zh-CN.md)里放了 Apple 官方打开说明。
 
-[下载 v0.4.3](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.4.3) · [源码与更多演示](https://github.com/AmethystineAlpaca/thank-you-for-the-fish)
+[下载 v0.5.1](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.5.1) · [源码与更多演示](https://github.com/AmethystineAlpaca/thank-you-for-the-fish)
 
 动图来自实际应用的独立演示收藏，收竿为演示触发；正常默认每 5–20 分钟随机咬钩。退出后保存鱼获，但不会继续钓鱼。美术由 AI 生成并整理为本地素材，动画由代码实现，运行时不调用图片生成服务。
 

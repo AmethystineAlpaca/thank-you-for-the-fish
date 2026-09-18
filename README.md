@@ -6,7 +6,7 @@
 
 **上班没啥事儿，又不能立马走，怎么办？就摸鱼！**
 
-A tiny boat, a hundred sea creatures, and a little joy between tasks.  
+A tiny boat, 160 sea creatures, and a little joy between tasks.<br>
 A cozy idle fishing companion for your Mac desktop.
 
 **小憩海湾 · Thank You for the Fish**
@@ -22,27 +22,22 @@ A cozy idle fishing companion for your Mac desktop.
 
 **Free & open source · Apple Silicon Mac · No account · Works offline after setup**
 
-## Changelog
+<p align="center">
+  <img src="docs/images/collection-showcase.png" alt="Ten in-game creatures, from reef fish and jellyfish to golden legendary creatures" width="900">
+</p>
 
-### Latest Release
+| A sea to discover | A pace of your own | A little space to breathe |
+| --- | --- | --- |
+| **160 creatures · 10 legends** | **1–120 minute bite intervals** | **Local saves · offline play** |
+| Four traits, 640 appearances | Automatic breaks after a chosen catch count | A draggable, resizable desktop boat |
 
-The sea just got a little more crowded.
+## Latest · v0.5.1
 
-- **Expanded the collection from 100 to 160 catchable creatures**  
-  Added 60 new marine creatures, including **10 legendary creatures** with their own sixth rarity tier, golden collection badges, and dedicated filter. Legendary creatures can also appear with all four traits: Normal, Shiny, Fluorescent, and Iridescent.
+**Softer creatures, cleaner edges.** All 60 expansion creatures have refreshed toy-like artwork, transparent edges, and anatomy-specific motion. Jellyfish pulse; shells stay still; tiny appendages do the moving. Existing collections remain compatible.
 
-- **Fixed various bugs**  
-  Squashed a number of issues across the collection, creature display, special traits, and general fishing experience.
+[Read the release notes](docs/releases/v0.5.1.md) · [Version history](CHANGELOG.md) · [Download for Mac](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
 
-- **Improved creature animations**  
-  Refined the movement of fish and other marine creatures, with smoother tails, fins, tentacles, and special visual effects.
-
-- **Added resting and automatic pause**  
-  When fishing is paused, the fisherman now puts down the rod and lies back to enjoy the view. You can also choose how many catches make up a fishing session. Once the limit is reached, the fisherman automatically takes a break — press **▶** whenever you're ready to start another round.
-
-**More fish. Better moves. And the fisherman finally learned how to take a break.**
-
-> The current app interface is in **Simplified Chinese**.  
+> The interface defaults to **Simplified Chinese**. Settings offers an **experimental, partial English translation**; species names and some controls remain Chinese.<br>
 > English button references are included in the [Download & play](#download--play) section below.
 
 <p align="center">
@@ -209,6 +204,8 @@ This release is built for Macs with **Apple Silicon**:
 
 5. Open it.
 
+Updating? Quit the previous version before replacing the app. Your collection stays in the separate local save directory. To verify a download, save both the ZIP and `SHA256SUMS.txt` in the same folder and run `shasum -a 256 -c SHA256SUMS.txt` there.
+
 A little boat should appear on your desktop, and **Thank You for the Fish** will appear in the macOS menu bar.
 
 You're fishing.
@@ -289,7 +286,7 @@ launcher opens the local packaged build.
 
 After changing the source, rebuild the app before using that launcher if you want to see the latest changes.
 
-Intel Mac build notes and additional verification commands are available in the [development guide](docs/DEVELOPMENT.md).
+Use `npm run release` on macOS to test, package, and create the ZIP plus SHA-256 checksum. See the [release guide](docs/RELEASING.md) for publishing, and the [development guide](docs/DEVELOPMENT.md) for Intel build notes and verification.
 
 ---
 

@@ -6,11 +6,11 @@
 
 **Thank You for the Fish — a free, open-source desktop fishing companion**
 
-I'm the creator. The app puts a draggable little fishing boat on your Mac desktop and automatically collects sea creatures while you do other things. It includes 100 creatures, four appearance traits, and a collection field guide. No account; local saves and offline play after setup.
+I'm the creator. The app puts a draggable little fishing boat on your Mac desktop and automatically collects sea creatures while you do other things. It includes 160 creatures, including 10 legends, four appearance traits, and a collection field guide. No account; local saves and offline play after setup.
 
 The current build is for **Apple Silicon Macs**, with a **Simplified Chinese UI** and an English button guide. It's built with Electron and is **not Developer ID signed or notarized** yet; the README links to Apple's first-launch instructions. Quitting preserves the collection but doesn't earn catches while closed. Artwork is AI-generated and stored locally; there are no runtime image-generation calls.
 
-[Source, screenshots, and instructions](https://github.com/AmethystineAlpaca/thank-you-for-the-fish) · [Official v0.4.3 download](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.4.3)
+[Source, screenshots, and instructions](https://github.com/AmethystineAlpaca/thank-you-for-the-fish) · [Official v0.5.1 download](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.5.1)
 
 If you try it, I'd appreciate feedback on first launch and whether the floating boat feels comfortable to leave on your desktop.
 

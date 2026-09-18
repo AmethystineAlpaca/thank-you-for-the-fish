@@ -18,7 +18,7 @@ I'm the project author. The public release includes an Apple Silicon app, checks
 
 Project: https://github.com/AmethystineAlpaca/thank-you-for-the-fish
 
-Release: https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.4.3
+Release: https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/tag/v0.5.1
 
 Checked the four lists and existing issues/PRs for the repository slug; no duplicate was found at preparation time. The patch adds one alphabetically positioned entry per language and follows the existing icon format. This contribution was prepared with AI assistance and should be reviewed by the author before submission.
 

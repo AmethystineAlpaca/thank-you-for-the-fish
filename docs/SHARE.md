@@ -8,7 +8,7 @@ Thank You for the Fish is a free, open-source idle fishing companion that puts a
 
 ## A short introduction
 
-A little boat waits in the corner of your Mac desktop. Every so often, a fish jumps out of the water and joins your collection. Discover 100 sea creatures in four traits: normal, alternate, glow, and prismatic. No account, no daily chores, and offline play after setup. Free and MIT-licensed.
+A little boat waits in the corner of your Mac desktop. Every so often, a fish jumps out of the water and joins your collection. Discover 160 sea creatures, including 10 legends, in four traits: normal, alternate, glow, and prismatic. No account, no daily chores, and offline play after setup. Free and MIT-licensed.
 
 The packaged download is for **Apple Silicon Macs**. The interface is currently **Simplified Chinese**, with an [English button guide](../README.md#download--play). The build is **not Developer ID signed or notarized**; see the download instructions before opening it. Quitting saves your collection but does not earn offline catches.
 
@@ -18,6 +18,7 @@ Use one image or GIF that matches your story. The desktop view explains where th
 
 | Asset | Preview / download | Suggested use |
 | --- | --- | --- |
+| Creature showcase · 160 creatures / 10 legends | [PNG](images/collection-showcase.png) | Lead with the current in-game artwork |
 | Desktop showcase | [PNG](images/desktop-showcase.png) | Show the boat in a desktop setting |
 | Fishing animation | [GIF](images/desktop-fishing.gif) | Lead a post with a visible catch |
 | Collection tour | [GIF](images/collection-tour.gif) | Show the basket and field guide |
@@ -38,7 +39,7 @@ The app does not yet export share cards: use your Mac's screenshot tool. “试�
 
 **一句话介绍：** 小憩海湾是一款免费开源的 Mac 桌面放置钓鱼小软件：桌角一艘船，你忙你的，它钓它的。
 
-**短介绍：** 把工位钓成水族馆。给 Mac 桌面放上一艘小船，偶尔抬头，就能遇见一条刚上钩的小鱼。100 种海洋生物、普通／异色／荧光／炫彩四种性状，慢慢攒出自己的海洋图鉴。无需注册，安装后可以离线玩，免费开源。
+**短介绍：** 把工位钓成水族馆。给 Mac 桌面放上一艘小船，偶尔抬头，就能遇见一条刚上钩的小鱼。160 种海洋生物（含 10 种传说）、普通／异色／荧光／炫彩四种性状，慢慢攒出自己的海洋图鉴。无需注册，安装后可以离线玩，免费开源。
 
 **下载说明：** 当前安装包适用于 M 系列 Mac，界面为简体中文，尚未经过 Developer ID 签名与公证。请从[官方 Release](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)下载，并按[中文说明](../README.zh-CN.md#马上开钓)首次打开。退出后会保存收藏，但不会继续钓鱼。
 
