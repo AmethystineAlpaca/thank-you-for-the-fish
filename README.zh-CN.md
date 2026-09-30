@@ -5,6 +5,11 @@
 **简体中文** · [English](README.md)
 
 [![下载 Mac 版](https://img.shields.io/badge/下载-Mac_M_系列-477f72?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
+
+[![访问 itch.io · 支持作者](https://img.shields.io/badge/itch.io-访问与支持作者-FA5C5C?style=for-the-badge&logo=itchdotio&logoColor=white)](https://alpacewhite.itch.io/thank-you-for-the-fish)
+
+喜欢这艘小船的话，可以[前往 itch.io 页面支持作者、自由捐款](https://alpacewhite.itch.io/thank-you-for-the-fish)。
+
 [![Tests](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml/badge.svg)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 

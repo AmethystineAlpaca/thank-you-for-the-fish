@@ -15,6 +15,10 @@ A cozy idle fishing companion for your Mac desktop.
 
 [![Download for Mac](https://img.shields.io/badge/Download-Mac_Apple_Silicon-477f72?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/releases/latest)
 
+[![Visit on itch.io · Support the creator](https://img.shields.io/badge/itch.io-Play_%26_Support_FA5C5C?style=for-the-badge&logo=itchdotio&logoColor=white)](https://alpacewhite.itch.io/thank-you-for-the-fish)
+
+Like the little boat? [Visit the itch.io page to support the creator with a donation.](https://alpacewhite.itch.io/thank-you-for-the-fish)
+
 [![Tests](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml/badge.svg)](https://github.com/AmethystineAlpaca/thank-you-for-the-fish/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
